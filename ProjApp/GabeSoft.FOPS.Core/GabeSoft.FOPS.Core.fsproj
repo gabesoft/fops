@@ -38,10 +38,10 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
     <Compile Include="Path.fs" />
-     <Compile Include="IOProvider.fs" />
-     <Compile Include="IO.fs" />
+    <Compile Include="IOProvider.fs" />
+    <Compile Include="IO.fs" />
     <Compile Include="Options.fs" />
-    <Compile Include="CopyJob.fs" />
+    <Compile Include="Job.fs" />
     <Compile Include="JobsParser.fs" />
     <Compile Include="Wildcard.fs" />
     <Compile Include="Filter.fs" />
