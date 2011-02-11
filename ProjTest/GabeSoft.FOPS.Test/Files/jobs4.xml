@@ -16,7 +16,8 @@
          <exclude path="C:\Output\Proj\*\tmp\*" />
       </copy>
    </job>
-   
+
+   <!--TODO: all individual job item functionality should be available from cmd line-->
    <!--copy       (allows excludes): multiple files copy in one destination directory -->
    <!--copy-file                   : single file copy to a destination file -->
    <!--copy-dir   (allows excludes): recursive directory copy including subfolders -->
