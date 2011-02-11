@@ -36,7 +36,7 @@ let expected_ids (l: Job list) =
    ids = ["j1"; "j2"; "j3" ]
 
 let expected_item_count (l: Job list) =
-   let counts = l |> List.map (fun j -> j.ItemsAbsolute.Length)
+   let counts = l |> List.map (fun j -> j.Items.Length)
 
    printMethod counts
    counts = [3; 2; 2]
@@ -47,7 +47,7 @@ let expected_item_count_by_type (l: Job list) =
    let isYank = function Yank _ -> true | _ -> false
    let intOfBool = function | true -> 1 | false -> 0
    let countsByType (job: Job) =
-      job.ItemsAbsolute
+      job.Items
       |> List.map (fun e -> 
             e |> isCopy |> intOfBool, 
             e |> isLink |> intOfBool, 
@@ -64,7 +64,7 @@ let expected_exclude_items (l: Job list) =
    | Link (_, _, _, e, _)  -> e.Length
    | _                     -> 0
    let excludeCounts (job: Job) =
-      job.ItemsAbsolute
+      job.Items
       |> List.map len
       |> List.sum
    let actual = l |> List.map excludeCounts
@@ -78,7 +78,7 @@ let get_job_with_id id (jobs: Job list) =
 
 let expected_item_types jobs =
    let job = get_job_with_id "j3" jobs
-   let actual = job.ItemsAbsolute 
+   let actual = job.Items 
                   |> List.map (function
                      | Copy (_, _, _, e, c) -> c, e.Length
                      | Link (_, _, _, e, c) -> c, e.Length
@@ -91,7 +91,7 @@ let expected_item_types jobs =
 
 let expected_from_paths jobs =
    let job = get_job_with_id "j3" jobs
-   let actual = job.ItemsAbsolute
+   let actual = job.Items
                   |> List.map (function
                      | Copy (f, _, _, _, c)  -> f, c
                      | Link (f, _, _, _, c)  -> f, c

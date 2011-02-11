@@ -52,5 +52,4 @@ type Job (items:Item list, ?id, ?basePath) =
 
    member x.Id with get() = _id
    member x.BasePath with get() = _basePath
-   member x.ItemsRelative with get() = items
-   member x.ItemsAbsolute with get() = _items
+   member x.Items with get() = _items

@@ -37,8 +37,8 @@ type IOProviderImpl () =
         member x.DeleteFile path = FileW.Delete(path)
         member x.DeleteFolder path deep = DirectoryW.Delete(path, deep)
         member x.CreateFolder path = DirectoryW.CreateDirectory(path) |> ignore
-        member x.Link source destination = FileCopier.CreateHardLink(source, destination)
-        member x.Copy source destination = FileCopier.Copy(source, destination)
+        member x.Link (source, destination) = FileCopier.CreateHardLink(source, destination)
+        member x.Copy (source, destination) = FileCopier.Copy(source, destination)
             
 type IOServer(?ioProvider) = 
     let provider = match ioProvider with

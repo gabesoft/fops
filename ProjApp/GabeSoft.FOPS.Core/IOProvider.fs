@@ -169,10 +169,10 @@ type IOProvider =
    /// The source and destination are on different volumes or the hard link creation failed.
    /// </exception>
    /// <exception cref="ArgumentNullException">The source or destination is null or empty.</exception>
-   abstract member Link : string -> string -> unit
+   abstract member Link : string * string -> unit
    /// <summary>
    /// Copies an existing file to a new file. If the destination file exists it will be overwritten.
    /// </summary>
    /// <param name="source">The existing file path.</param>
    /// <param name="destination">The destination file path. If this is an existing file it will be overwritten. This cannot be a directory path.</param>
-   abstract member Copy : string -> string -> unit
+   abstract member Copy : string * string -> unit

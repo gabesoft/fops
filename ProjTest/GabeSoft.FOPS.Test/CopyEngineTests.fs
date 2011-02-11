@@ -9,58 +9,54 @@ open NUnit.Framework
 
 open GabeSoft.FOPS.Core
 
-let paths = [
-   @"C:\Temp\*\Dir1\*.txt"
-   @"C:\Temp\Source\Dir1\doc2.txt"
-   @"C:\*.*"
-   @"C:\Temp\f*.*x" ]
+// TODO: 
+//  - test copy-file
+//  - test copy-dir
+//  - test copy
+//  - test copy-file
+//  - test copy-dir
+//  - test copy
+//  - test yank
 
-let allowed = [
-   [ @"C:\Temp\Source1\Source2\Dir1\doc1.txt"
-     @"C:\Temp\Source1\Dir1\doc2.txt"
-     @"C:\Temp\Source1\Source2\Dir1\file.txt" ] 
-   [ @"C:\Temp\Source\Dir1\doc2.txt" ] 
-   [ @"C:\file1.pdf"; @"C:\file2.txt"; @"C:\Dir1\file1.pdf"; @"C:\Dir1\Dir2\file1.pdf" ] 
-   [ @"C:\Temp\file1.ax"; @"C:\Temp\file2.x"] ]
+let running_job (server: IOServer, job: Job) =
+  printMethod String.Empty
+  CopyEngine.run server [job]
+  server.Provider
 
-let files = [
-   fun () -> [ @"C:\Temp\Source1\Source2\Dir1\doc1.txt"
-               @"C:\Temp\Source1\Source2\Dir2\doc1.txt"
-               @"C:\Temp\Source1\Source2\Dir1\doc1.pdf"
-               @"C:\Temp\Source1\Dir1\doc2.txt"
-               @"C:\Temp\Source1\Dir2\doc2.txt"
-               @"C:\Temp\Dir1\doc3.txt"
-               @"C:\Temp\Source\doc3.txt"
-               @"C:\Temp\Source1\Source2\Dir1\file.txt" ] 
-   fun () -> [ @"C:\Temp\Source\Dir1\doc2.txt" ] 
-   fun () -> [ @"C:\file1.pdf"; @"C:\file2.txt"; @"C:\Dir1\file1.pdf"; @"C:\Dir1\Dir2\file1.pdf" ] 
-   fun () -> [ @"C:\Temp\file1.ax"
-               @"C:\Temp\file2.x"
-               @"C:\Temp2\file3.x"
-               @"C:\Temp\file1.axd"
-               @"C:\Temp\Dir\file1.ax"
-               @"C:\Temp2\file1.axd" ] ]
+let mock_provider () = 
+  mock<IOProvider> "provider"
+  |> setup<@fun x -> x.FileExists@> (fun _ -> true)
+  |> setup<@fun x -> x.FolderExists@> (fun _ -> true)                    
 
-let same expected actual =
-   let e = List.ofSeq expected
-   let a = List.ofSeq actual
-   printMethod (e.Length, a.Length)
-   e = a
+let create_job item = new Job([item])
+let server provider = 
+  new IOServer(provider)  
 
-//let reading_files index =
-//   let path = paths.[index]
-//   let read = files.[index]
-//   printMethod path
-//   CopyEngine.getFiles path read
-//
-//[<ScenarioTemplate(0)>]
-//[<ScenarioTemplate(1)>]
-//[<ScenarioTemplate(2)>]
-//[<ScenarioTemplate(3)>]
-//let ``When reading files should allow according to wildcards`` (index) =
-//   Given index
-//   |> When reading_files
-//   |> It should have (same allowed.[index]) 
-//   |> Verify
+[<Scenario>]
+let ``Yank should delete the correct file`` () = 
+  let src = @"C:\a\b\c\f.doc"
+  let job = src |> Item.yank |> create_job
+  let provider = 
+    mock_provider() 
+    |> register <@fun x -> x.DeleteFile@> (fun src -> ())
+  
+  Given (server provider, job)
+  |> When running_job
+  |> Called <@fun x -> x.DeleteFile @>(src)
+  |> Verify
 
-// TODO: test the copy engine by using mocks!
+[<Scenario>]
+let ``Copy file should use correct paths`` () =
+  let src = @"C:\a\b\f1.txt"
+  let dst = @"C:\e\f\g\f2.doc"
+  let item = Item.copy File (src, dst, false, [])
+  let job = new Job([item])
+  let provider = 
+    mock_provider () 
+    |> setup<@fun x -> x.Copy@>(fun (src, dst) -> ())
+
+  Given (server provider, job)
+  |> When running_job
+  |> Called <@fun x -> x.Copy@> (src, dst)
+  |> Verify
+

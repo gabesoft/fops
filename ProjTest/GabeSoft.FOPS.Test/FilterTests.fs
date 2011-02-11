@@ -84,8 +84,8 @@ type TestIOProvider (paths:string list) =
       member x.DeleteFile path = failwith "not implemented"
       member x.DeleteFolder path deep = failwith "not implemented"
       member x.CreateFolder path = failwith "not implemented"
-      member x.Link source destination = failwith "not implemented"
-      member x.Copy source destination = failwith "not implemented"
+      member x.Link (source, destination) = failwith "not implemented"
+      member x.Copy (source, destination) = failwith "not implemented"
 
 let io_server paths = 
    let provider = new TestIOProvider(paths)
