@@ -2,7 +2,13 @@
 
 open System
 
-type CopyType = File | Folder | Pattern
+type CopyType = 
+   /// Copy a single file.
+   | File 
+   /// Copy all contents of a folder recursively.
+   | Folder 
+   /// Copy a list of files that match a wildcard pattern.
+   | Pattern
 
 /// File operations job item.
 type Item = 
