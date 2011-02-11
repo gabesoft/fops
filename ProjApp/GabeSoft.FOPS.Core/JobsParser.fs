@@ -65,10 +65,14 @@ module JobsParser =
 
    let parseItem (elem: XElement) = 
       match lname elem with
-      | "copy" -> parseCopy Copy elem
-      | "link" -> parseCopy Link elem
-      | "yank" -> parseYank elem
-      | n      -> fail (sprintf "unknown element %s" n)
+      | "copy"       -> parseCopy (Item.copy Pattern) elem
+      | "copy-file"  -> parseCopy (Item.copy File) elem
+      | "copy-dir"   -> parseCopy (Item.copy Folder) elem
+      | "link"       -> parseCopy (Item.link Pattern) elem
+      | "link-file"  -> parseCopy (Item.link File) elem
+      | "link-dir"   -> parseCopy (Item.link Folder) elem
+      | "yank"       -> parseYank elem
+      | n            -> fail (sprintf "unknown element %s" n)
 
    let parseJob (elem: XElement) =
       let id = getAttr "id" elem true

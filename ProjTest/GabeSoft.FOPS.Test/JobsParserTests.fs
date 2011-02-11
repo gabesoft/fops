@@ -42,13 +42,16 @@ let expected_item_count (l: Job list) =
    counts = [3; 2; 2]
 
 let expected_item_count_by_type (l: Job list) =
+   let isCopy = function Copy _ -> true | _ -> false
+   let isLink = function Link _ -> true | _ -> false
+   let isYank = function Yank _ -> true | _ -> false
    let intOfBool = function | true -> 1 | false -> 0
    let countsByType (job: Job) =
       job.ItemsAbsolute
       |> List.map (fun e -> 
-            e |> Item.isCopy |> intOfBool, 
-            e |> Item.isLink |> intOfBool, 
-            e |> Item.isYank |> intOfBool)
+            e |> isCopy |> intOfBool, 
+            e |> isLink |> intOfBool, 
+            e |> isYank |> intOfBool)
       |> List.fold (fun (cacc,lacc,yacc) (c,l,y) -> cacc+c, lacc+l, yacc+y) (0,0,0)
    let counts = l |> List.map countsByType
 
@@ -56,9 +59,13 @@ let expected_item_count_by_type (l: Job list) =
    counts = [0, 3, 0; 1, 0, 1; 2, 0, 0]
 
 let expected_exclude_items (l: Job list) =
+   let len = function 
+   | Copy (_, _, _, e, _)  -> e.Length
+   | Link (_, _, _, e, _)  -> e.Length
+   | _                     -> 0
    let excludeCounts (job: Job) =
       job.ItemsAbsolute
-      |> List.map (Item.map (fun _ _ _ e -> e.Length) (fun _ _ _ e -> e.Length) (fun _ -> 0))
+      |> List.map len
       |> List.sum
    let counts = l |> List.map excludeCounts
 

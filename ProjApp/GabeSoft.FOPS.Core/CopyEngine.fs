@@ -21,9 +21,9 @@ module CopyEngine =
             
    /// TODO: check file existence if necessary
    let private runItem (server: IOServer) = function
-   | Copy (f, t, o, e)  -> printfn "copy from %s to %s" f t
-   | Link (f, t, o, e)  -> printfn "link from %s to %s" f t
-   | Yank (f)           -> printfn "yank from %s" f
+   | Copy (f, t, o, e, c)  -> printfn "copy from %s to %s" f t
+   | Link (f, t, o, e, c)  -> printfn "link from %s to %s" f t
+   | Yank (f)              -> printfn "yank from %s" f
 
    let private runJob (server: IOServer) (job: Job) =
       job.ItemsAbsolute |> Seq.iter (runItem server)
