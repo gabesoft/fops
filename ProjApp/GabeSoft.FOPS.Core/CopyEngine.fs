@@ -25,7 +25,7 @@ module CopyEngine =
    | Link (f, t, o, e)  -> printfn "link from %s to %s" f t
    | Yank (f)           -> printfn "yank from %s" f
 
-   let private runJob (server: IOServer) (job: CopyJob) =
+   let private runJob (server: IOServer) (job: Job) =
       job.ItemsAbsolute |> Seq.iter (runItem server)
          
    let run server jobs = 

@@ -29,36 +29,36 @@ let parsing file =
    printMethod file
    JobsParser.parseFile file
 
-let expected_ids (l: CopyJob list) =
+let expected_ids (l: Job list) =
    let ids = l |> List.map (fun j -> j.Id)
    
    printMethod ids
    ids = ["j1"; "j2"; "j3" ]
 
-let expected_item_count (l: CopyJob list) =
+let expected_item_count (l: Job list) =
    let counts = l |> List.map (fun j -> j.ItemsAbsolute.Length)
 
    printMethod counts
    counts = [3; 2; 2]
 
-let expected_item_count_by_type (l: CopyJob list) =
+let expected_item_count_by_type (l: Job list) =
    let intOfBool = function | true -> 1 | false -> 0
-   let countsByType (job: CopyJob) =
+   let countsByType (job: Job) =
       job.ItemsAbsolute
       |> List.map (fun e -> 
-            e |> CopyItem.isCopy |> intOfBool, 
-            e |> CopyItem.isLink |> intOfBool, 
-            e |> CopyItem.isYank |> intOfBool)
+            e |> Item.isCopy |> intOfBool, 
+            e |> Item.isLink |> intOfBool, 
+            e |> Item.isYank |> intOfBool)
       |> List.fold (fun (cacc,lacc,yacc) (c,l,y) -> cacc+c, lacc+l, yacc+y) (0,0,0)
    let counts = l |> List.map countsByType
 
    printMethod counts
    counts = [0, 3, 0; 1, 0, 1; 2, 0, 0]
 
-let expected_exclude_items (l: CopyJob list) =
-   let excludeCounts (job: CopyJob) =
+let expected_exclude_items (l: Job list) =
+   let excludeCounts (job: Job) =
       job.ItemsAbsolute
-      |> List.map (CopyItem.map (fun _ _ _ e -> e.Length) (fun _ _ _ e -> e.Length) (fun _ -> 0))
+      |> List.map (Item.map (fun _ _ _ e -> e.Length) (fun _ _ _ e -> e.Length) (fun _ -> 0))
       |> List.sum
    let counts = l |> List.map excludeCounts
 

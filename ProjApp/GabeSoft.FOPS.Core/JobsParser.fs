@@ -78,7 +78,7 @@ module JobsParser =
                   |> Seq.append (xsons "yank" elem)
                   |> Seq.map parseItem
                   |> Seq.toList
-      new CopyJob(items, id, basePath)
+      new Job(items, id, basePath)
 
    let parseDocument (xdoc: XDocument) = 
       xdoc.Root

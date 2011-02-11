@@ -4,12 +4,8 @@ open System
 
 type CopyType = File | Folder | Pattern
 
-// TODO: yank is not a copy item
-//       job is not a copy job
-//       Job, Item
-
 /// File operations job item.
-type CopyItem = 
+type Item = 
    /// Copy (from, to, overwrite, excludes)
    | Copy of string * string * bool * string list
    /// Link (from, to, overwrite, excludes)
@@ -22,22 +18,22 @@ type CopyItem =
       | Yank (f)           -> fyank f
    /// Gets the from path of the given item.
    static member fromPath = 
-      CopyItem.map (fun f _ _ _ -> f) (fun f _ _ _ -> f) id
+      Item.map (fun f _ _ _ -> f) (fun f _ _ _ -> f) id
    /// Gets the to path of the given item.
    static member toPath = 
-      CopyItem.map (fun _ t _ _ -> t) (fun _ t _ _ -> t) (fun _ -> String.Empty)
+      Item.map (fun _ t _ _ -> t) (fun _ t _ _ -> t) (fun _ -> String.Empty)
    /// Gets the overwrite flag of the given item.
    static member overwrite =
-      CopyItem.map (fun _ _ o _ -> o) (fun _ _ o _ -> o) (fun _ -> false)
+      Item.map (fun _ _ o _ -> o) (fun _ _ o _ -> o) (fun _ -> false)
    static member isCopy =
-      CopyItem.map (fun _ _ _ _ -> true) (fun _ _ _ _ -> false) (fun _ -> false)
+      Item.map (fun _ _ _ _ -> true) (fun _ _ _ _ -> false) (fun _ -> false)
    static member isLink =
-      CopyItem.map (fun _ _ _ _ -> false) (fun _ _ _ _ -> true) (fun _ -> false)
+      Item.map (fun _ _ _ _ -> false) (fun _ _ _ _ -> true) (fun _ -> false)
    static member isYank =
-      CopyItem.map (fun _ _ _ _ -> false) (fun _ _ _ _ -> false) (fun _ -> true)
+      Item.map (fun _ _ _ _ -> false) (fun _ _ _ _ -> false) (fun _ -> true)
 
 /// File operations job.
-type CopyJob (items:CopyItem list, ?id, ?basePath) =
+type Job (items:Item list, ?id, ?basePath) =
    let get arg def =
       match arg with 
       | Some v -> v
