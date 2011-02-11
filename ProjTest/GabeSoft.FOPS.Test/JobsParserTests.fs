@@ -73,15 +73,34 @@ let expected_exclude_items (l: Job list) =
    printMethod (expected, actual)
    expected = actual
 
-let expected_item_types (l: Job list) =
-   let job = l |> List.find (fun j -> j.Id = "j3") 
+let get_job_with_id id (jobs: Job list) =
+   jobs |> List.find (fun j -> j.Id = id)
+
+let expected_item_types jobs =
+   let job = get_job_with_id "j3" jobs
    let actual = job.ItemsAbsolute 
                   |> List.map (function
-                                 | Copy (_, _, _, e, c) -> c, e.Length
-                                 | Link (_, _, _, e, c) -> c, e.Length
-                                 | _                    -> Pattern, 0)
+                     | Copy (_, _, _, e, c) -> c, e.Length
+                     | Link (_, _, _, e, c) -> c, e.Length
+                     | _                    -> Pattern, 0)
                   |> List.sort
    let expected = [File, 0; Pattern, 2; Folder, 3] |> List.sort
+
+   printMethod (expected, actual)
+   expected = actual
+
+let expected_from_paths jobs =
+   let job = get_job_with_id "j3" jobs
+   let actual = job.ItemsAbsolute
+                  |> List.map (function
+                     | Copy (f, _, _, _, c)  -> f, c
+                     | Link (f, _, _, _, c)  -> f, c
+                     | Yank (f)              -> f, Pattern)
+                  |> List.sort
+   let expected = [ 
+      @"C:\Source\f1.txt", File
+      @"C:\Source\*\cache\*.doc", Pattern
+      @"C:\Source\a\b", Folder ] |> List.sort
 
    printMethod (expected, actual)
    expected = actual
@@ -136,10 +155,15 @@ let ``Can populate the copy types`` () =
    |> Verify
 
 [<Scenario>]
+let ``Can populate the from paths`` () =
+   Given file4
+   |> When parsing
+   |> It should have expected_from_paths
+   |> Verify
+
+[<Scenario>]
 [<FailsWithType (typeof<ParseException>)>]
 let ``Job id is a required attribute`` () =
    Given file3
    |> When parsing
    |> Verify
-
-// TODO: add a test to verify that the items (to/from) get populated
