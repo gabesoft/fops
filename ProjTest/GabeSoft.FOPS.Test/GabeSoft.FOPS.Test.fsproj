@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{af7770b0-4b0e-4124-89d7-102d085b2fe5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>GabeSoft.HLMaker.Test</RootNamespace>
+    <AssemblyName>GabeSoft.FOPS.Test</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <Name>GabeSoft.FOPS.Test</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\GabeSoft.FOPS.Test.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>bin\Release\GabeSoft.HLMaker.Test.XML</DocumentationFile>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <ItemGroup>
+    <Content Include="Files\jobs1.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\jobs2.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\jobs3.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\jobs4.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="Script1.fsx" />
+    <None Include="Script2.fsx" />
+    <Compile Include="FileCopierTests.fs" />
+    <Compile Include="OptionsTests.fs" />
+    <Compile Include="JobsParserTests.fs" />
+    <Compile Include="CopyEngineTests.fs" />
+    <Compile Include="WildcardTests.fs" />
+    <Compile Include="FilterTestsData.fs" />
+    <Compile Include="FilterTests.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.PowerPack, Version=2.0.0.0, Culture=neutral, PublicKeyToken=a19089b1c74d0809" />
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core" />
+    <Reference Include="NaturalSpec">
+      <HintPath>..\..\Dependencies\NaturalSpec.0.7.1\NaturalSpec.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\Dependencies\NUnit.2.5.9\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="SofGem.DSBK.Core">
+      <HintPath>..\..\Dependencies\SofGem.DSBK.1.0\SofGem.DSBK.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SofGem.DSBK.Domain">
+      <HintPath>..\..\Dependencies\SofGem.DSBK.1.0\SofGem.DSBK.Domain.dll</HintPath>
+    </Reference>
+    <Reference Include="SofGem.DSBK.IO">
+      <HintPath>..\..\Dependencies\SofGem.DSBK.1.0\SofGem.DSBK.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ProjApp\GabeSoft.FOPS.App\GabeSoft.FOPS.App.fsproj">
+      <Name>GabeSoft.FOPS.App</Name>
+      <Project>{13c9a6c6-91cd-4907-8073-8ec215546382}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ProjApp\GabeSoft.FOPS.Cmd\GabeSoft.FOPS.Cmd.csproj">
+      <Name>GabeSoft.FOPS.Cmd</Name>
+      <Project>{f7306ef5-c071-4c6f-b2c4-744c772c9a0e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ProjApp\GabeSoft.FOPS.Core\GabeSoft.FOPS.Core.fsproj">
+      <Name>GabeSoft.FOPS.Core</Name>
+      <Project>{4dd44e2a-d6fb-4cc9-9bb4-d9f3b027a742}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	     Other similar extension points exist, see Microsoft.Common.targets.
+	<Target Name="BeforeBuild">
+	</Target>
+	<Target Name="AfterBuild">
+	</Target>
+	-->
+</Project>

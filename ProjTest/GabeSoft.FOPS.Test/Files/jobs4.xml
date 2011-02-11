@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<jobs>
+   <job id="j1" basePath="F:\Source">
+      <copy from="C:\Source\*.*" to="C:\Dest" overwrite="false"/>
+      <!--<copy from="C:\Source\Temp\file.txt" tofile="C:\Dest\file.doc" />-->
+      <copy from="C:\Source\Temp\file.txt" to="C:\Dest" />
+      <link from="C:\Source\*\cache\?*\f*.pd?" to="C:\Dest" />
+      <link from="Dir1\*\cache\?*\f*.pd?" to="C:\Dest" >
+         <exclude path="Dir1\*\cache\a\f*.pdb" />
+      </link>
+      <yank from="C:\Temp\*\obj\*.*" />
+   </job>
+   <job id="j2">
+      <copy from="C:\Code\Proj\*\*.*" to="C:\Output">
+         <exclude path="C:\Output\Proj\*\obj\*" />
+         <exclude path="C:\Output\Proj\*\tmp\*" />
+      </copy>
+   </job>
+   
+   <!--copy       (allows excludes): multiple files copy in one destination directory -->
+   <!--copy-file                   : single file copy to a destination file -->
+   <!--copy-dir   (allows excludes): recursive directory copy including subfolders -->
+   <!--link       (allows excludes)-->
+   <!--link-file-->
+   <!--link-dir   (allows excludes)-->
+   
+   <!--<job id="j3" baseFrom="C:\Source" baseTo="C:\Dest">
+      <copy-file from="C:\Source\f1.txt" to="C:\Dest\f2.txt" />
+      <copy from="C:\Source\*\cache\*.doc" to="C:\Dest">
+         <exclude path="C:\Source\*\cache\f?.doc" />
+         <exclude path="C:\Source\*\cache\p*.doc" />
+      </copy>
+      <copy-dir from="C:\Source\a\b" to="C:\Dest">
+         <exclude path="C:\Source\a\b\*\*.tmp" />
+         <exclude path="C:\Source\a\b\c\*" />
+         <exclude path="C:\Source\a\b\?*\d\*" />
+      </copy-dir>
+   </job>-->
+</jobs>
