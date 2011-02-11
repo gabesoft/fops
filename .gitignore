@@ -1,0 +1,8 @@
+*.orig
+*.suo
+*.user
+*.sln.cache
+*.swp
+bin/
+obj/
+Build/
