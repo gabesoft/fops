@@ -78,7 +78,11 @@ module JobsParser =
       let id = getAttr "id" elem true
       let basePath = getAttr "basePath" elem false 
       let items = xsons "copy" elem      
+                  |> Seq.append (xsons "copy-file" elem)
+                  |> Seq.append (xsons "copy-dir" elem)
                   |> Seq.append (xsons "link" elem)
+                  |> Seq.append (xsons "link-file" elem)
+                  |> Seq.append (xsons "link-dir" elem)
                   |> Seq.append (xsons "yank" elem)
                   |> Seq.map parseItem
                   |> Seq.toList

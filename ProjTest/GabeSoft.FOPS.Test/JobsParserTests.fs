@@ -67,10 +67,24 @@ let expected_exclude_items (l: Job list) =
       job.ItemsAbsolute
       |> List.map len
       |> List.sum
-   let counts = l |> List.map excludeCounts
+   let actual = l |> List.map excludeCounts
+   let expected = [1; 2; 5]
 
-   printMethod counts
-   counts = [1; 2]
+   printMethod (expected, actual)
+   expected = actual
+
+let expected_item_types (l: Job list) =
+   let job = l |> List.find (fun j -> j.Id = "j3") 
+   let actual = job.ItemsAbsolute 
+                  |> List.map (function
+                                 | Copy (_, _, _, e, c) -> c, e.Length
+                                 | Link (_, _, _, e, c) -> c, e.Length
+                                 | _                    -> Pattern, 0)
+                  |> List.sort
+   let expected = [File, 0; Pattern, 2; Folder, 3] |> List.sort
+
+   printMethod (expected, actual)
+   expected = actual
 
 [<Scenario>]
 let ``Can find the jobs files`` () =
@@ -112,6 +126,13 @@ let ``Can populate the copy exclude items`` () =
    Given file4
    |> When parsing
    |> It should have expected_exclude_items
+   |> Verify
+
+[<Scenario>]
+let ``Can populate the copy types`` () =
+   Given file4
+   |> When parsing
+   |> It should have expected_item_types
    |> Verify
 
 [<Scenario>]

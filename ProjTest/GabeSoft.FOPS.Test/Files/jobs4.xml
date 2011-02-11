@@ -24,8 +24,8 @@
    <!--link       (allows excludes)-->
    <!--link-file-->
    <!--link-dir   (allows excludes)-->
-   
-   <!--<job id="j3" baseFrom="C:\Source" baseTo="C:\Dest">
+
+   <job id="j3" baseFrom="C:\Source" baseTo="C:\Dest">
       <copy-file from="C:\Source\f1.txt" to="C:\Dest\f2.txt" />
       <copy from="C:\Source\*\cache\*.doc" to="C:\Dest">
          <exclude path="C:\Source\*\cache\f?.doc" />
@@ -36,5 +36,5 @@
          <exclude path="C:\Source\a\b\c\*" />
          <exclude path="C:\Source\a\b\?*\d\*" />
       </copy-dir>
-   </job>-->
+   </job>
 </jobs>
