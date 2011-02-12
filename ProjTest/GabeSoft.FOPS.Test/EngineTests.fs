@@ -46,13 +46,20 @@ let mkServer paths =
   new IOServer(mockProvider)  
 
 [<Scenario>]
-let ``Yank should delete the correct file`` () = 
-  let src = @"C:\a\b\c\f.doc"
+let ``Yank should delete the correct files`` () = 
+  let src = @"C:\a\b\c\f*.doc"
   let job = src |> Item.yank |> mkJob
+  let paths = [   @"C:\a\b\f1.doc"
+                  @"C:\a\b\c\f2.doc"
+                  @"C:\a\b\c\f3.doc"
+                  @"C:\a\b\c\foo.doc"
+                  @"C:\a\b\c\d\f3.doc" ]
   
-  Given (mkServer [], job)
+  Given (mkServer paths, job)
   |> When running_job
-  |> Called <@fun x -> x.DeleteFile @>(src)
+  |> Called <@fun x -> x.DeleteFile @>(paths.[1])
+  |> Called <@fun x -> x.DeleteFile @>(paths.[2])
+  |> Called <@fun x -> x.DeleteFile @>(paths.[3])
   |> Verify
 
 [<Scenario>]

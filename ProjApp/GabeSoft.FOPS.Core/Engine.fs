@@ -33,7 +33,21 @@ type Engine(server: IOServer, ?log:Log) =
   let cwarn src dst reason = sprintf "copy: %s -> %s (%s)" src dst reason |> info
   let linfo src dst = sprintf "link: %s -> %s (DONE)" src dst |> info
   let lwarn src dst reason = sprintf "link: %s -> %s (SKIPPED: %s)" src dst reason |> info
-  let yinfo src = sprintf "yank: %s (DONE)" src |> info
+  let yinfo src = sprintf "yank: %s (DELETED)" src |> info
+
+  let yankFile src = 
+    let spec = {
+      Pattern = Wildcard.toRegex src
+      Exclude = []
+      Recursive = Wildcard.isRecursive src }
+    let node = 
+      src 
+      |> Wildcard.root 
+      |> server.Node
+      |> Filter.apply spec
+    node.AllFiles |> Seq.iter (fun f -> 
+                                  yank f.Path
+                                  yinfo f.Path)
 
   let copyFile (copy, info, warn) (src, dst, overwrite) =
     let exists = server.Provider.FileExists
@@ -88,8 +102,7 @@ type Engine(server: IOServer, ?log:Log) =
     | FileMode    -> copyFile (link, linfo, lwarn) (f, t, o)
     | FolderMode  -> copyFolder (link, linfo, lwarn) (f, t, o, e)
     | PatternMode -> copyPattern (link, linfo, lwarn) (f, t, o, e)
-  | Yank f -> yank f
-              yinfo f
+  | Yank f        -> yankFile f
 
   let runJob (job:Job) = Seq.iter runItem job.Items
   
