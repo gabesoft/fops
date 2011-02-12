@@ -4,11 +4,11 @@ open System
 
 type CopyType = 
    /// Copy a single file.
-   | File 
+   | FileMode 
    /// Copy all contents of a folder recursively.
-   | Folder 
+   | FolderMode 
    /// Copy a list of files that match a wildcard pattern.
-   | Pattern
+   | PatternMode
 
 /// File operations job item.
 type Item = 

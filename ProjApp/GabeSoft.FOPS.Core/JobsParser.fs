@@ -13,7 +13,7 @@ type ParseException (message:string, ?innerException:Exception) =
       match innerException with | Some ex -> ex | None -> null)
 
 module JobsParser =
-   let fail message = raise (ParseException(message))
+   let fail message = raise (new ParseException(message))
    let lname (elem: XElement) = elem.Name.LocalName
    let xname name = XName.Get (name)
    let xattr name (elem: XElement) = 
@@ -65,12 +65,12 @@ module JobsParser =
 
    let parseItem (elem: XElement) = 
       match lname elem with
-      | "copy"       -> parseCopy (Item.copy Pattern) elem
-      | "copy-file"  -> parseCopy (Item.copy File) elem
-      | "copy-dir"   -> parseCopy (Item.copy Folder) elem
-      | "link"       -> parseCopy (Item.link Pattern) elem
-      | "link-file"  -> parseCopy (Item.link File) elem
-      | "link-dir"   -> parseCopy (Item.link Folder) elem
+      | "copy"       -> parseCopy (Item.copy PatternMode) elem
+      | "copy-file"  -> parseCopy (Item.copy FileMode) elem
+      | "copy-dir"   -> parseCopy (Item.copy FolderMode) elem
+      | "link"       -> parseCopy (Item.link PatternMode) elem
+      | "link-file"  -> parseCopy (Item.link FileMode) elem
+      | "link-dir"   -> parseCopy (Item.link FolderMode) elem
       | "yank"       -> parseYank elem
       | n            -> fail (sprintf "unknown element %s" n)
 

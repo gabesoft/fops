@@ -82,9 +82,9 @@ let expected_item_types jobs =
                   |> List.map (function
                      | Copy (_, _, _, e, c) -> c, e.Length
                      | Link (_, _, _, e, c) -> c, e.Length
-                     | _                    -> Pattern, 0)
+                     | _                    -> PatternMode, 0)
                   |> List.sort
-   let expected = [File, 0; Pattern, 2; Folder, 3] |> List.sort
+   let expected = [FileMode, 0; PatternMode, 2; FolderMode, 3] |> List.sort
 
    printMethod (expected, actual)
    expected = actual
@@ -95,12 +95,12 @@ let expected_from_paths jobs =
                   |> List.map (function
                      | Copy (f, _, _, _, c)  -> f, c
                      | Link (f, _, _, _, c)  -> f, c
-                     | Yank (f)              -> f, Pattern)
+                     | Yank (f)              -> f, PatternMode)
                   |> List.sort
    let expected = [ 
-      @"C:\Source\f1.txt", File
-      @"C:\Source\*\cache\*.doc", Pattern
-      @"C:\Source\a\b", Folder ] |> List.sort
+      @"C:\Source\f1.txt", FileMode
+      @"C:\Source\*\cache\*.doc", PatternMode
+      @"C:\Source\a\b", FolderMode ] |> List.sort
 
    printMethod (expected, actual)
    expected = actual
