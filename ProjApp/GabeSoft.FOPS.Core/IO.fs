@@ -5,7 +5,7 @@ open SofGem.DSBK.Core
 open SofGem.DSBK.IO
 open SofGem.DSBK.Domain
 
-type IONodeType = File | Folder | Unknown
+type IONodeType = FileNode | FolderNode | UnknownNode
 type IONode = 
     {   Path: string
         Type: IONodeType
@@ -17,8 +17,8 @@ type IONode =
         Files = Seq.empty<_>
         Folders = Seq.empty<_>
     }
-    static member File path = IONode.Make path IONodeType.File
-    static member Folder path = IONode.Make path IONodeType.Folder
+    static member File path = IONode.Make path IONodeType.FileNode
+    static member Folder path = IONode.Make path IONodeType.FolderNode
     member x.AllFiles = seq {
         yield! x.Files
         yield! x.Folders |> Seq.map (fun f -> f.AllFiles) |> Seq.concat
@@ -69,7 +69,7 @@ type IOServer(?ioProvider) =
                 Files = files path
                 Folders = folders path }
         else
-            IONode.Make path IONodeType.Unknown
+            IONode.Make path IONodeType.UnknownNode
 
     member x.Node = node
     member x.Files = files

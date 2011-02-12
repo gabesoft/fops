@@ -64,13 +64,25 @@ let ``Copy dir should create directory structure`` () =
   let job = new Job ([Item.copy Folder (src, dst, true, [])])
   let files = [ @"f1.txt"
                 @"c\f2.txt"
-                @"d\f2.txt"
-                @"c\d\f3.txt" ] 
+                @"d\f3.txt"
+                @"c\d\f4.txt" ] 
   // TODO: combine provider with mock
-  let provider = new TestIOProvider(files |> List.map srcPath)
+  let provider = 
+    new TestIOProvider(files |> List.map srcPath) 
+    :> IOProvider
+  let mockProvider = 
+    mock<IOProvider> "fake"
+    |> setup<@fun x -> x.GetFiles@> provider.GetFiles
+    |> setup<@fun x -> x.GetFolders@> provider.GetFolders
+    |> setup<@fun x -> x.FileExists@> provider.FileExists
+    |> setup<@fun x -> x.FolderExists@> provider.FolderExists
+    |> setup<@fun x -> x.CreateFolder@> provider.CreateFolder
+    |> setup<@fun x -> x.Copy@> (fun x -> Console.WriteLine(x:string*string))
   
-  Given (new IOServer(provider), job)
+  Given (new IOServer(mockProvider), job)
   |> When running_job
   |> Called <@fun x -> x.Copy@>(srcPath files.[0], dstPath files.[0])
   |> Called <@fun x -> x.Copy@>(srcPath files.[1], dstPath files.[1])
+  |> Called <@fun x -> x.Copy@>(srcPath files.[2], dstPath files.[2])
+  |> Called <@fun x -> x.Copy@>(srcPath files.[3], dstPath files.[3])
   |> Verify
