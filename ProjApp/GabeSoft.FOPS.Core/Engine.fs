@@ -30,7 +30,7 @@ type Engine(server: IOServer, ?log:Log) =
   let yank src = server.Provider.DeleteFile src
 
   let cinfo src dst = sprintf "copy: %s -> %s (DONE)" src dst |> info
-  let cwarn src dst reason = sprintf "copy: %s -> %s (SKIPPED: %s)" src dst reason |> info
+  let cwarn src dst reason = sprintf "copy: %s -> %s (%s)" src dst reason |> info
   let linfo src dst = sprintf "link: %s -> %s (DONE)" src dst |> info
   let lwarn src dst reason = sprintf "link: %s -> %s (SKIPPED: %s)" src dst reason |> info
   let yinfo src = sprintf "yank: %s (DONE)" src |> info
@@ -39,10 +39,12 @@ type Engine(server: IOServer, ?log:Log) =
     let exists = server.Provider.FileExists
     let mkdir = server.Provider.CreateFolder
     match exists dst, overwrite with
-    | true, false   ->  warn src dst "file already exists"
-    | _             ->  dst |> Path.directory |> mkdir
+    | true, false   ->  warn src dst "SKIPPED: file already exists"
+    | e, _          ->  dst |> Path.directory |> mkdir
                         copy src dst
-                        info src dst
+                        match e with
+                        | false  -> info src dst
+                        | true   -> warn src dst "DONE: replaced"
   
   let rec copyDeep (copy, info, warn) (fdst, overwrite) (node:IONode) =
     let src = node.Path

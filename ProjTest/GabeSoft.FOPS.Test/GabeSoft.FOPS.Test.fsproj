@@ -52,7 +52,7 @@
     <Compile Include="FileCopierTests.fs" />
     <Compile Include="OptionsTests.fs" />
     <Compile Include="JobsParserTests.fs" />
-    <Compile Include="CopyEngineTests.fs" />
+    <Compile Include="EngineTests.fs" />
     <Compile Include="WildcardTests.fs" />
     <Compile Include="FilterTestsData.fs" />
     <Compile Include="FilterTests.fs" />
