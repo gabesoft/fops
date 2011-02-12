@@ -48,6 +48,7 @@
     </Content>
     <None Include="Script1.fsx" />
     <None Include="Script2.fsx" />
+    <Compile Include="TestIOProvider.fs" />
     <Compile Include="FileCopierTests.fs" />
     <Compile Include="OptionsTests.fs" />
     <Compile Include="JobsParserTests.fs" />

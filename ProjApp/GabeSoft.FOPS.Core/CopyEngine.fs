@@ -6,7 +6,7 @@ module CopyEngine =
 
   let copyFile (server: IOServer) (src, dst, overwrite) =
     match server.Provider.FileExists dst, overwrite with
-    | true, true  -> ()
+    | true, false -> ()
     | _           -> server.Provider.Copy (src, dst)
 
   let copyFolder (server: IOServer) (src, dst, overwrite, excludes) =
