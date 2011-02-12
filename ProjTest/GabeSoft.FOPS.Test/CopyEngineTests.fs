@@ -18,28 +18,33 @@ open GabeSoft.FOPS.Test
 //  - test copy-dir
 //  - test copy
 //  - test yank
+//  - test excludes
 
 let running_job (server: IOServer, job: Job) =
-  printMethod String.Empty
+  printMethod "\n"
   CopyEngine.run server [job]
   server.Provider
 
-let mock_provider () = 
-  mock<IOProvider> "provider"
-  |> setup<@fun x -> x.FileExists@> (fun _ -> true)
-  |> setup<@fun x -> x.FolderExists@> (fun _ -> true)                    
-  |> setup <@fun x -> x.DeleteFile@> (fun src -> ())
-  |> setup<@fun x -> x.Copy@>(fun (src, dst) -> ())
+let writeln text = Console.WriteLine (text:string)
 
-let create_job item = new Job([item])
-let create_server () = new IOServer(mock_provider())  
+let mkJob item = new Job([item])
+let mkServer () = 
+  let provider = 
+    mock<IOProvider> "fake"
+    |> setup<@fun x -> x.FileExists@> (fun _ -> true)
+    |> setup<@fun x -> x.FolderExists@> (fun _ -> true)                    
+    |> setup <@fun x -> x.DeleteFile@> (fun src -> ())
+    |> setup<@fun x -> x.Copy@>(fun (src, dst) -> ())
+  new IOServer(provider)  
+let mkTestProvider paths =
+  new TestIOProvider(paths) :> IOProvider
 
 [<Scenario>]
 let ``Yank should delete the correct file`` () = 
   let src = @"C:\a\b\c\f.doc"
-  let job = src |> Item.yank |> create_job
+  let job = src |> Item.yank |> mkJob
   
-  Given (create_server (), job)
+  Given (mkServer (), job)
   |> When running_job
   |> Called <@fun x -> x.DeleteFile @>(src)
   |> Verify
@@ -50,7 +55,7 @@ let ``Copy file should use correct paths`` () =
   let dst = @"C:\e\f\g\f2.doc"
   let job = new Job([Item.copy File (src, dst, true, [])])
 
-  Given (create_server(), job)
+  Given (mkServer(), job)
   |> When running_job
   |> Called <@fun x -> x.Copy@> (src, dst)
   |> Verify
@@ -61,15 +66,12 @@ let ``Copy dir should create directory structure`` () =
   let dst = @"C:\e\f"
   let srcPath path = Path.combine src path
   let dstPath path = Path.combine dst path
-  let job = new Job ([Item.copy Folder (src, dst, true, [])])
+  let job = Item.copy Folder (src, dst, true, []) |> mkJob
   let files = [ @"f1.txt"
                 @"c\f2.txt"
                 @"d\f3.txt"
                 @"c\d\f4.txt" ] 
-  // TODO: combine provider with mock
-  let provider = 
-    new TestIOProvider(files |> List.map srcPath) 
-    :> IOProvider
+  let provider = files |> List.map srcPath |> mkTestProvider
   let mockProvider = 
     mock<IOProvider> "fake"
     |> setup<@fun x -> x.GetFiles@> provider.GetFiles
@@ -77,7 +79,7 @@ let ``Copy dir should create directory structure`` () =
     |> setup<@fun x -> x.FileExists@> provider.FileExists
     |> setup<@fun x -> x.FolderExists@> provider.FolderExists
     |> setup<@fun x -> x.CreateFolder@> provider.CreateFolder
-    |> setup<@fun x -> x.Copy@> (fun x -> Console.WriteLine(x:string*string))
+    |> setup<@fun x -> x.Copy@> (fun x -> sprintf "\tCopy%A" x |> writeln)
   
   Given (new IOServer(mockProvider), job)
   |> When running_job
@@ -86,3 +88,15 @@ let ``Copy dir should create directory structure`` () =
   |> Called <@fun x -> x.Copy@>(srcPath files.[2], dstPath files.[2])
   |> Called <@fun x -> x.Copy@>(srcPath files.[3], dstPath files.[3])
   |> Verify
+
+//[<Scenario>]
+//let ``Copy should copy all matched files to destination directory`` () =
+//  let src = @"C:\a\b"
+//  let dst = @"C:\e\f"
+//  let pat = @"C:\a\b\*\g\f?.p*"
+//  let job = Item.copy Pattern (src, dst, true, []) |> mkJob 
+//  job
+
+  
+
+

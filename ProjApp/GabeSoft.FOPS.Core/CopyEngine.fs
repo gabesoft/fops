@@ -21,16 +21,16 @@ module CopyEngine =
     | UnknownNode   ->  failwith "unknown node type"  // TODO: raise CopyException                
 
   let copyFolder (server: IOServer) (src, dst, overwrite, excludes) =
-    Console.WriteLine("copyFolder: " + dst)
     let spec = { 
       Pattern = Wildcard.matchAll src
       Exclude = (Wildcard.matchAll dst) :: excludes
       Recursive = true }
     let node = server.Node src |> Filter.apply spec
     let fdst (path:string) = 
-      let p1 = path.Replace (src, String.Empty)
-      let p2 = p1.TrimStart ([|'/'; '\\'|])
-      Path.combine dst p2
+      path
+        .Replace(src, String.Empty)
+        .TrimStart([|'/'; '\\'|])   // put this logic in Path.combine if it makes sense
+        |> Path.combine dst
     copyRec server overwrite fdst node
 
   let private copy (server: IOServer) (f, t, o, e) =

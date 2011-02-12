@@ -125,5 +125,4 @@ module Wildcard =
    let matchAll folder = 
       let clean (s: string) = s.TrimEnd([|'/'; '\\'|])
       let pattern = sprintf "%s/*/*" (folder |> clean) 
-      printfn "%s" pattern
       toRegex pattern
