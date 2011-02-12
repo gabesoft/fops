@@ -57,7 +57,7 @@ module JobsParser =
                      |> Seq.toList
       let from = getAttr "from" elem true
       let to' = getAttr "to" elem true
-      let overwrite = getAttr "overwrite" elem false
+      let overwrite = getAttr "force" elem false
       f (from, to', overwrite |> toBool true, excludes)
 
    let parseYank (elem: XElement) =

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <jobs>
    <job id="j1" basePath="F:\Source">
-      <copy from="C:\Source\*.*" to="C:\Dest" overwrite="false"/>
+      <copy from="C:\Source\*.*" to="C:\Dest" force="false"/>
       <!--<copy from="C:\Source\Temp\file.txt" tofile="C:\Dest\file.doc" />-->
       <copy from="C:\Source\Temp\file.txt" to="C:\Dest" />
       <link from="C:\Source\*\cache\?*\f*.pd?" to="C:\Dest" />

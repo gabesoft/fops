@@ -6,7 +6,7 @@
       <link from="Temp\Dir2\file.doc" to="F:\Temp\Dir3\copied.doc" />
    </job>
    <job id="j2" basePath="F:\Source" >
-      <copy from="C:\Source\*.*" to="C:\Dest" overwrite="false" />
+      <copy from="C:\Source\*.*" to="C:\Dest" force="false" />
       <yank from="C:\Temp\file.txt" />
    </job>
    <job id="j3" basePath="G:\Source1\Source2">

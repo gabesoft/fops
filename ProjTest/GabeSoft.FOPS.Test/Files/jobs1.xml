@@ -3,8 +3,8 @@
   <!-- add log4net -->
   <!-- fcopy jobs.xml /id:j1 -->
   <!-- fcopy jobs.xml /id:j1 /basePath:"C:\MyDir" -->
-  <!-- fcopy /from:"C:\*\Dir1\file.pdf" /to:"F:\Files" /overwrite:true -->
-  <!-- fcopy /from:"C:\*\Dir1\file.pdf" /to:"C:\Files" /overwrite:true /hlinks:true -->
+  <!-- fcopy /from:"C:\*\Dir1\file.pdf" /to:"F:\Files" /force:true -->
+  <!-- fcopy /from:"C:\*\Dir1\file.pdf" /to:"C:\Files" /force:true /hlinks:true -->
   <!-- fcopy /f:"C:\*\Dir1\file.pdf" /t:"C:\Files" /o:true /h:true -->
 
   <!-- maybe allow a source base path and a destination base path !? -->
@@ -20,7 +20,7 @@
   </job>
   <job id="j2" basePath="F:\">
      <copy from="Temp\*.*" to="Temp2" />
-     <copy from="Src\*.*" to="Dest" overwrite="false" />
+     <copy from="Src\*.*" to="Dest" force="false" />
   </job>
   
 </jobs>

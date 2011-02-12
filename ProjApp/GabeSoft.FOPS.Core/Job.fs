@@ -12,9 +12,9 @@ type CopyType =
 
 /// File operations job item.
 type Item = 
-   /// Copy (from, to, overwrite, excludes, type)
+   /// Copy (from, to, force, excludes, type)
    | Copy of string * string * bool * string list * CopyType
-   /// Hard link (from, to, overwrite, excludes, type)
+   /// Hard link (from, to, force, excludes, type)
    | Link of string * string * bool * string list * CopyType
    /// Delete (from)
    | Yank of string

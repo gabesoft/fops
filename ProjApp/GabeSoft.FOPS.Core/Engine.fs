@@ -49,10 +49,10 @@ type Engine(server: IOServer, ?log:Log) =
                                   yank f.Path
                                   yinfo f.Path)
 
-  let copyFile (copy, info, warn) (src, dst, overwrite) =
+  let copyFile (copy, info, warn) (src, dst, force) =
     let exists = server.Provider.FileExists
     let mkdir = server.Provider.CreateFolder
-    match exists dst, overwrite with
+    match exists dst, force with
     | true, false   ->  warn src dst "SKIPPED: file already exists"
     | e, _          ->  dst |> Path.directory |> mkdir
                         copy src dst
@@ -60,18 +60,18 @@ type Engine(server: IOServer, ?log:Log) =
                         | false  -> info src dst
                         | true   -> warn src dst "DONE: replaced"
   
-  let rec copyDeep (copy, info, warn) (fdst, overwrite) (node:IONode) =
+  let rec copyDeep (copy, info, warn) (fdst, force) (node:IONode) =
     let src = node.Path
     let dst = fdst src
     match node.Type with
-    | FileNode      -> copyFile (copy, info, warn) (src, dst, overwrite)
+    | FileNode      -> copyFile (copy, info, warn) (src, dst, force)
     | FolderNode    -> 
       node.Files 
       |> Seq.append node.Folders
-      |> Seq.iter (copyDeep (copy, info, warn) (fdst, overwrite))
+      |> Seq.iter (copyDeep (copy, info, warn) (fdst, force))
     | _             -> fail "unknown node type"
 
-  let copyFolder (copy, info, warn) (src, dst, overwrite, excludes) =
+  let copyFolder (copy, info, warn) (src, dst, force, excludes) =
     let excludes = excludes |> List.map Wildcard.toRegex    
     let spec = {
       Pattern = (Wildcard.matchAll src)
@@ -79,9 +79,9 @@ type Engine(server: IOServer, ?log:Log) =
       Recursive = true }
     let node = server.Node src |> Filter.apply spec
     let fdst path = Path.combine dst (Path.part src path)
-    copyDeep (copy, info, warn) (fdst, overwrite) node
+    copyDeep (copy, info, warn) (fdst, force) node
 
-  let copyPattern (copy, info, warn) (src, dst, overwrite, excludes) =
+  let copyPattern (copy, info, warn) (src, dst, force, excludes) =
     let excludes = excludes |> List.map Wildcard.toRegex
     let spec = {
       Pattern = (Wildcard.toRegex src)
@@ -89,7 +89,7 @@ type Engine(server: IOServer, ?log:Log) =
       Recursive = Wildcard.isRecursive src }
     let node = src |> Wildcard.root |> server.Node
     let fdst path = Path.combine dst (Path.file path)
-    node.AllFiles |> Seq.iter (copyDeep (copy, info, warn) (fdst, overwrite))
+    node.AllFiles |> Seq.iter (copyDeep (copy, info, warn) (fdst, force))
 
   let runItem = function
   | Copy (f, t, o, e, c)  -> 
