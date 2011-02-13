@@ -46,7 +46,7 @@ let mkServer paths =
   new IOServer(mockProvider)  
 
 [<Scenario>]
-let ``Yank should delete the correct files`` () = 
+let ``Yank should delete the selected files`` () = 
   let src = @"C:\a\b\c\f*.doc"
   let job = src |> Item.yank |> mkJob
   let paths = [   @"C:\a\b\f1.doc"
@@ -60,6 +60,35 @@ let ``Yank should delete the correct files`` () =
   |> Called <@fun x -> x.DeleteFile @>(paths.[1])
   |> Called <@fun x -> x.DeleteFile @>(paths.[2])
   |> Called <@fun x -> x.DeleteFile @>(paths.[3])
+  |> Verify
+
+let deleted path (provider: IOProvider) =
+  printMethod path
+  let impl = provider :?> TestIOProvider
+  impl.DeletedFiles.Contains(path)
+
+[<Scenario>]
+let ``Yank should not delete unselected files`` () =
+  let src = @"C:\a\b\c\f*.doc"
+  let job = src |> Item.yank |> mkJob
+  let paths = [   @"C:\a\b\f1.doc"
+                  @"C:\a\b\c\f2.doc"
+                  @"C:\a\b\c\f3.doc"
+                  @"C:\a\b\c\foo.doc"
+                  @"C:\a\b\c\p3.doc"
+                  @"C:\a\b\c\e3.doc"
+                  @"C:\a\b\c\f4.pdf"
+                  @"C:\a\b\c\d\f5.doc" ]
+  let provider = mkTestProvider paths
+  let server = new IOServer(provider)
+
+  Given (server, job)
+  |> When running_job
+  |> It shouldn't have (deleted paths.[0])
+  |> It shouldn't have (deleted paths.[4])
+  |> It shouldn't have (deleted paths.[5])
+  |> It shouldn't have (deleted paths.[6])
+  |> It shouldn't have (deleted paths.[7])
   |> Verify
 
 [<Scenario>]
