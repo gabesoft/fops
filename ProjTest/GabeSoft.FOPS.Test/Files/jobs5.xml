@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- final version -->
+<job id="j4" base-src="C:\Source" base-dst="C:\Destination">
+  <delete src="a\b\c\*\d\*.tmp" />
+  <delete src="a\b\c\f1.pdb" />
+  <copy-file src="b\f2.pdf" dst="c\f3.pdf" />
+  <copy-dir src="b\e\" dst="\">
+    <exclude path="*\*.tmp" />
+    <exclude path="*\bin\*.pdb" />
+  </copy-dir>
+  <copy src="a\?*\b\*\*.t*" dst="e">
+    <exclude path="c\*.*" />
+    <exclude path="d\*.*" />
+    <exclude path="e\*.*" />
+  </copy>
+  <link src="C:\a\b\?*\*.*" dst="C:\e\f"/>
+</job>
+
