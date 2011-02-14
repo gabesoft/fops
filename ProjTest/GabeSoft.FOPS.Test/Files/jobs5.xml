@@ -1,17 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <!-- final version -->
-<job id="j4" base-src="C:\Source" base-dst="C:\Destination">
+
+<!-- base path priority -->
+<!-- 1. full path specified -->
+<!-- 2. command line specified -->
+<!-- 3. attribute specified -->
+
+<!-- fops -file=jobs5.xml -base-src=F:\src -base-dst=F:\dst -->
+<!-- fops -d -src=C:\source\a\b\c\*\d\*.tmp -->
+<!-- fops -c -src=C:\source\a\?*\b\*\*.t* -dst=C:\dest\e -f -->
+<!-- fops -cd -src=C:\source\b\e -dst=C:\dest -->
+<!-- fops -cf -src=C:\source\b\f2.pdf -dst=C:dest\f3.pdf -->
+<!-- fops -l -src=C:\a\b\?*\* -dst=C:\e\f -->
+<job id="j4" base-src="C:\source" base-dst="C:\dest">
   <delete src="a\b\c\*\d\*.tmp" />
   <delete src="a\b\c\f1.pdb" />
   <copy-file src="b\f2.pdf" dst="c\f3.pdf" />
   <copy-dir src="b\e\" dst="\">
-    <exclude path="*\*.tmp" />
-    <exclude path="*\bin\*.pdb" />
+    <exclude src="*\*.tmp" />
+    <exclude src="*\bin\*.pdb" />
   </copy-dir>
-  <copy src="a\?*\b\*\*.t*" dst="e">
-    <exclude path="c\*.*" />
-    <exclude path="d\*.*" />
-    <exclude path="e\*.*" />
+  <copy src="a\?*\b\*\*.t*" dst="e" force="true">
+    <exclude src="c\*" />
+    <exclude src="d\*" />
+    <exclude src="e\*" />
   </copy>
   <link src="C:\a\b\?*\*.*" dst="C:\e\f"/>
 </job>
