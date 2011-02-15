@@ -1,7 +1,0 @@
-glob:Build/*
-glob:bin\*
-glob:obj\*
-glob:*.suo
-glob:*.user
-glob:_ReSharper*\*
-glob:FOPS.5.1.ReSharper.user

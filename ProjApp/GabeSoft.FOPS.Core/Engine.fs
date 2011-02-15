@@ -33,7 +33,7 @@ type Engine(server: IOServer, ?log:Log) =
   let cwarn src dst reason = sprintf "copy: %s -> %s (%s)" src dst reason |> info
   let linfo src dst = sprintf "link: %s -> %s (DONE)" src dst |> info
   let lwarn src dst reason = sprintf "link: %s -> %s (%s)" src dst reason |> info
-  let yinfo src = sprintf "yank: %s (DELETED)" src |> info
+  let yinfo src = sprintf "delete: %s (DONE)" src |> info
 
   let yankFile src = 
     let spec = {

@@ -34,8 +34,11 @@ type IOProviderImpl () =
         member x.FolderExists path = DirectoryW.Exists(path)
         member x.GetFiles path = DirectoryW.GetFiles(path)
         member x.GetFolders path = DirectoryW.GetDirectories(path)
-        member x.DeleteFile path = FileW.Delete(path)
-        member x.DeleteFolder path deep = DirectoryW.Delete(path, deep)
+        member x.DeleteFile path = DeleteHelper.DeleteFile(path)
+        member x.DeleteFolder (path, deep) = 
+          match deep with
+          | true -> DeleteHelper.DeleteDirectoryRecursive(path, true)
+          | false -> DeleteHelper.DeleteDirectory(path, false)
         member x.CreateFolder path = DirectoryW.CreateDirectory(path) |> ignore
         member x.Link (source, destination) = FileCopier.CreateHardLink(source, destination)
         member x.Copy (source, destination) = FileCopier.Copy(source, destination)
