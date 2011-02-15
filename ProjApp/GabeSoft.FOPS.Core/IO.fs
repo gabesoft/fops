@@ -39,9 +39,12 @@ type IOProviderImpl () =
           match deep with
           | true -> DeleteHelper.DeleteDirectoryRecursive(path, true)
           | false -> DeleteHelper.DeleteDirectory(path, false)
-        member x.CreateFolder path = DirectoryW.CreateDirectory(path) |> ignore
-        member x.Link (source, destination) = FileCopier.CreateHardLink(source, destination)
-        member x.Copy (source, destination) = FileCopier.Copy(source, destination)
+        member x.CreateFolder path = 
+          DirectoryW.CreateDirectory(path) |> ignore
+        member x.Link (source, destination) = 
+          FileCopier.CreateHardLink(source, destination)
+        member x.Copy (source, destination) = 
+          FileCopier.Copy(source, destination)
             
 type IOServer(?ioProvider) = 
     let provider = match ioProvider with

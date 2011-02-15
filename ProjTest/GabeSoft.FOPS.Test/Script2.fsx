@@ -38,7 +38,8 @@ let rules =
 
 let deleteVssFiles () =
   let server = new IOServer(new IOProviderImpl())
-  let item = Yank(@"C:\Work\github\clickless\?*\*.vspscc")
-  let job = new Job([item])
+  let item1 = Yank(@"C:\Work\github\clickless\?*\*.vspscc")
+  let item2 = Yank(@"C:\Work\github\clickless\?*\*.scc")
+  let job = new Job([item1; item2])
   let engine = new Engine(server)
   engine.Run job
