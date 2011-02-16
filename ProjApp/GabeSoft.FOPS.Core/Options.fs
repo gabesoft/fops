@@ -29,27 +29,27 @@ type Options (args, ?app) =
     set.Add(arg, desc, new Action<_>(action)) |> ignore
 
   do 
-    add "?|help"        (fun v -> _help <- true)
+    add "?|help"        (fun (v:string) -> _help <- true)
         "Show usage." 
     add "f|file="       (fun v -> _file <- v)
         "Path to the file containing the jobs to run." 
-    add "d|delete"      (fun v -> _yank <- v)
+    add "d|delete"      (fun (v:string) -> _yank <- true)
         "Delete files according to a wildcard pattern." 
-    add "deletedir"  (fun v -> _yankd <- v)
+    add "deletedir"  (fun (v:string) -> _yankd <- true)
         "Delete an entire directory recursively!"
-    add "c|copy"        (fun v -> _copy <- v)
+    add "c|copy"        (fun (v:string) -> _copy <- true)
         "Copy files according to a wildcard pattern." 
-    add "l|link"        (fun v -> _link <- v)
+    add "l|link"        (fun (v:string) -> _link <- true)
         "Link files according to a wildcard pattern." 
-    add "copyfile"   (fun v -> _copyf <- v)
+    add "copyfile"   (fun (v:string) -> _copyf <- true)
         "Copy a single file."
-    add "linkfile"   (fun v -> _linkf <- v)
+    add "linkfile"   (fun (v:string) -> _linkf <- true)
         "Link a single file."
-    add "p|copydir"    (fun v -> _copyd <- v)
+    add "p|copydir"    (fun (v:string) -> _copyd <- true)
         "Copy a directory recursively."
-    add "n|linkdir"    (fun v -> _linkd <- v)
+    add "n|linkdir"    (fun (v:string) -> _linkd <- true)
         "Link a directory recursively."
-    add "o|force"       (fun v -> _force <- v)
+    add "o|force"       (fun (v:string) -> _force <- true)
         "Overwrite any existing files at destination"
     add "src="          (fun v -> _src <- v)
         "Source path (filesystem path or wildcard pattern)."
@@ -64,22 +64,42 @@ type Options (args, ?app) =
 
     set.Parse(args) |> ignore
 
-  let verify () =
-    let provider = new IOProviderImpl() :> IOProvider
-    let fileSelected = 
-      String.IsNullOrEmpty(_file) |> not && 
-      provider.FileExists(_file) 
-    if fileSelected then false else
-    let cmds = [  _yank; _yankd; 
-                  _copy; _copyd; _copyf;
-                  _link; _linkd; _linkf ]
-    failwith "not implemented"
-        
-
   let writeln text = Console.WriteLine(text:string)
   let cmd text = sprintf "  %s %s" _app text |> writeln
   let writeOpts () = set.WriteOptionDescriptions(Console.Out)
+  let notEmpty (s:string) = String.IsNullOrEmpty(s) |> not
+  let infoHeader () = writeln "DETECTED PARAMETERS"
 
+  let verifyFile () = 
+    let path = Path.full _file
+    let provider = new IOProviderImpl() :> IOProvider
+    match provider.FileExists(path) with
+    | false ->  sprintf "- INPUT FILE: %s" path |> writeln
+                writeln "- ERROR: file not found on disk"
+                false
+    | true  ->  sprintf "- INPUT FILE: %s" path |> writeln
+                if notEmpty _jobId then
+                  sprintf "- JOB ID: %s" _jobId |> writeln
+                true
+
+  let verifyYank () =
+    match _yank, _yankd with
+    | true, _   ->  writeln "- DELETE FILES"
+                    sprintf "- SOURCE PATTERN: %s" _src |> writeln
+    | _, true   ->  writeln "- DELETE DIRECTORY (RECURSIVE)"
+                    sprintf "- SOURCE PATH: %s" _src |> writeln
+    | _         ->  failwith "internal error"
+
+  let verify () =
+    let fileSelected = notEmpty _file
+    let cmds = [  fileSelected;
+                  _yank; _yankd; 
+                  _copy; _copyd; _copyf;
+                  _link; _linkd; _linkf ]
+    infoHeader()
+//    verifyFile ()
+    verifyYank ()
+        
   member x.Help with get() = _help
   member x.File with get() = _file
   member x.Yank with get() = _yank
