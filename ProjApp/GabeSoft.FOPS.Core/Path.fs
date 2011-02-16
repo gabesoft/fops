@@ -1,6 +1,7 @@
 ﻿namespace GabeSoft.FOPS.Core
 
 open System
+open System.Text
 open SofGem.DSBK.IO
 
 /// Filesystem path operations.
@@ -35,3 +36,10 @@ module Path =
   /// <param name="path">The path from which to extract the child part.</param>
   let part (parent:string) (path:string) = 
     path.Replace(parent, String.Empty) |> clean
+
+  /// Normalizes all path separators.
+  let normalize (input:string) = 
+    (new StringBuilder(input))
+        .Replace('/', separator)
+        .Replace('\\', separator)
+        .ToString()

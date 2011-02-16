@@ -7,17 +7,6 @@ type OperationException (message:string, ?innerException:Exception) =
       message, 
       match innerException with | Some ex -> ex | None -> null)
 
-type Log =
-  abstract member Info : string -> unit
-  abstract member Warn : string -> unit
-  abstract member Fail : string -> unit
-
-type LogImpl () = 
-  interface Log with
-    member x.Info message = Console.WriteLine(message)
-    member x.Warn message = Console.WriteLine(message)
-    member x.Fail message = Console.WriteLine(message)
-
 /// Operations engine.
 type Engine(server: IOServer, ?log:Log) =
   let info, warn, fail =   

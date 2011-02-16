@@ -26,30 +26,6 @@ type Item =
    static member yank f = Yank f
 
 /// File operations job.
-type Job (items:Item list, ?id, ?basePath) =
-   let get arg def =
-      match arg with 
-      | Some v -> v
-      | None   -> def
-   let _id = get id (Guid.NewGuid().ToString())
-   let _basePath = get basePath String.Empty
-
-   let complete path = 
-      match Path.rooted path, String.IsNullOrWhiteSpace(_basePath) with
-      | true, _      -> path
-      | false, true  -> Path.full path
-      | false, false -> Path.combine _basePath path
-   let makePathsAbsolute = function
-   | Copy (f, t, o, e, c)  -> 
-      Copy (complete f, complete t, o, List.map complete e, c)
-   | Link (f, t, o, e, c)  -> 
-      Link (complete f, complete t, o, List.map complete e, c)
-   | Yank (f)              -> Yank (complete f)
-   let _items = 
-      items
-      |> Seq.map makePathsAbsolute
-      |> Seq.toList
-
-   member x.Id with get() = _id
-   member x.BasePath with get() = _basePath
-   member x.Items with get() = _items
+type Job (items:Item list, id) =
+   member x.Id with get() = id
+   member x.Items with get() = items

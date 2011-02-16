@@ -67,38 +67,6 @@ type Options (args, ?app) =
   let writeln text = Console.WriteLine(text:string)
   let cmd text = sprintf "  %s %s" _app text |> writeln
   let writeOpts () = set.WriteOptionDescriptions(Console.Out)
-  let notEmpty (s:string) = String.IsNullOrEmpty(s) |> not
-  let infoHeader () = writeln "DETECTED PARAMETERS"
-
-  let verifyFile () = 
-    let path = Path.full _file
-    let provider = new IOProviderImpl() :> IOProvider
-    match provider.FileExists(path) with
-    | false ->  sprintf "- INPUT FILE: %s" path |> writeln
-                writeln "- ERROR: file not found on disk"
-                false
-    | true  ->  sprintf "- INPUT FILE: %s" path |> writeln
-                if notEmpty _jobId then
-                  sprintf "- JOB ID: %s" _jobId |> writeln
-                true
-
-  let verifyYank () =
-    match _yank, _yankd with
-    | true, _   ->  writeln "- DELETE FILES"
-                    sprintf "- SOURCE PATTERN: %s" _src |> writeln
-    | _, true   ->  writeln "- DELETE DIRECTORY (RECURSIVE)"
-                    sprintf "- SOURCE PATH: %s" _src |> writeln
-    | _         ->  failwith "internal error"
-
-  let verify () =
-    let fileSelected = notEmpty _file
-    let cmds = [  fileSelected;
-                  _yank; _yankd; 
-                  _copy; _copyd; _copyf;
-                  _link; _linkd; _linkf ]
-    infoHeader()
-//    verifyFile ()
-    verifyYank ()
         
   member x.Help with get() = _help
   member x.File with get() = _file
@@ -116,9 +84,6 @@ type Options (args, ?app) =
   member x.BaseSrc with get() = _baseSrc
   member x.BaseDst with get() = _baseDst
   member x.JobId with get() = _jobId
-  /// Verify selected option and print status.
-  /// Returns false if no valid option could be determined.
-  member x.Verify = verify 
   member x.WriteUsage () = 
     cmd "--file=<path> [-basesrc=<path>] [-basedst=<path>] [-jobid=<id>]"
     cmd "--delete      -src=<pattern>"
@@ -131,4 +96,16 @@ type Options (args, ?app) =
     cmd "--linkdir     -src=<path>     -dst=<path> [-f]"
     writeln String.Empty
     writeOpts ()
-
+    writeln ""
+    writeln "NOTES"
+    writeln "- path: "
+    writeln "  a filesystem path which can be absolute"
+    writeln "  or relative to the basesrc or basedst"
+    writeln "- pattern: "
+    writeln "  a wildcard pattern which can be absolute"
+    writeln "  or relative to the basesrc."
+    writeln "  The wildcard pattern may contain a * that "
+    writeln "  matches zero or more characters or a ? that matches"
+    writeln "  a single character. Directory match works as follows:"
+    writeln "  /*/ matches any directory any level deep"
+    writeln "  /?*/ matches any directory exactly one level deep"

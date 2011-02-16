@@ -30,7 +30,7 @@ let running_job (server: IOServer, job: Job) =
 
 let writeln text = Console.WriteLine (text:string)
 
-let mkJob item = new Job([item])
+let mkJob item = new Job([item], "j1")
 let mkTestProvider paths =
   new TestIOProvider(paths) :> IOProvider
 let mkServer paths = 
