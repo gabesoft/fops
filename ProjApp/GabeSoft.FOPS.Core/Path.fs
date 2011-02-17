@@ -24,9 +24,12 @@ module Path =
   let full path = PathW.GetFullPath(path)
   /// Gets the root directory information of the specified path.
   let root path = PathW.GetPathRoot(path)
+  /// Gets the full path of the current working directory.
+  let cwd = Environment.CurrentDirectory
 
   /// Combines two path strings.
   let combine path1 path2 = PathW.Combine(clean path1, clean path2)
+  
   /// <summary>
   /// Gets the part of a path that remains
   /// after removing the specified parent directory.
@@ -43,3 +46,6 @@ module Path =
         .Replace('/', separator)
         .Replace('\\', separator)
         .ToString()
+
+  /// Trims any start and end path separators.
+  let trim (input:string) = input.Trim([|'/';'\\'|])

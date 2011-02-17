@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <jobs>
-   <job basePath="F:\Source">
-      <copy from="C:\Source\*.*" to="C:\Dest" />
+   <job>
+      <copy src="C:\Source\*.*" dst="C:\Dest" />
    </job>
 </jobs>

@@ -34,7 +34,8 @@ type Options (args, ?app) =
     add "f|file="       (fun v -> _file <- v)
         "Path to the file containing the jobs to run." 
     add "d|delete"      (fun (v:string) -> _yank <- true)
-        "Delete files according to a wildcard pattern." 
+        @"Delete all files that match a wildcard
+          pattern (including read-only!)." 
     add "deletedir"  (fun (v:string) -> _yankd <- true)
         "Delete an entire directory recursively!"
     add "c|copy"        (fun (v:string) -> _copy <- true)
@@ -104,8 +105,8 @@ type Options (args, ?app) =
     writeln "- pattern: "
     writeln "  a wildcard pattern which can be absolute"
     writeln "  or relative to the basesrc."
-    writeln "  The wildcard pattern may contain a * that "
-    writeln "  matches zero or more characters or a ? that matches"
+    writeln "  The wildcard pattern may contain a '*' that "
+    writeln "  matches zero or more characters or a '?' that matches"
     writeln "  a single character. Directory match works as follows:"
     writeln "  /*/ matches any directory any level deep"
     writeln "  /?*/ matches any directory exactly one level deep"

@@ -1,19 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <jobs>
-   <job id="j1" basePath="C:\Source">
-      <link from="Temp\Dir1\*\*.txt" to="Temp\Dir2" />
-      <link from="Temp\Dir2\sample.pdf" to="Temp\Dir3\copied.pdf" />
-      <link from="Temp\Dir2\file.doc" to="F:\Temp\Dir3\copied.doc" />
-   </job>
-   <job id="j2" basePath="F:\Source" >
-      <copy from="C:\Source\*.*" to="C:\Dest" force="false" />
-      <yank from="C:\Temp\file.txt" />
-   </job>
-   <job id="j3" basePath="G:\Source1\Source2">
-      <copy from="Temp\*.*" to="Temp2" />
-      <copy from="C:\Src\*\Code\*.*" to="C:\Dest">
-         <exclude path="C:\Src\*\Code\*.tmp" />
-         <exclude path="C:\Src\*\Code\*.pdb" />
-      </copy>
-   </job>
+  <job id="j1" base-src="C:\Source" base-dst="F:\Destination">
+    <link src="Temp\Dir1\*\*.txt" dst="Temp\Dir2" />
+    <link src="Temp\Dir2\sample.pdf" dst="Temp\Dir3\copied.pdf" />
+    <link src="Temp\Dir2\file.doc" dst="F:\Temp\Dir3\copied.doc" />
+  </job>
+  <job id="j2" base-src="F:\Source" >
+    <copy src="C:\Source\*.*" dst="C:\Dest" force="false" />
+    <delete src="C:\Temp\file.txt" />
+    <delete src="C:\Temp\Other\*.doc" />
+    <delete-dir src="C:\Temp\bin" />
+  </job>
+  <job id="j3" base-src="G:\Source1\Source2" base-dst="F:\Destination">
+    <copy src="Temp\*.*" dst="\" />
+    <copy-dir src="Temp\bin" dst="Temp2" force="true">
+      <exclude src="Temp\bin\*.pdb" />
+    </copy-dir>
+    <copy src="C:\Src\*\Code\*.*" dst="C:\Dest">
+      <exclude src="C:\Src\*\Code\*.tmp" />
+      <exclude src="C:\Src\*\Code\*.pdb" />
+    </copy>
+  </job>
 </jobs>

@@ -46,7 +46,9 @@
     <Content Include="Files\jobs4.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Files\jobs5.xml" />
+    <Content Include="Files\jobs5.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Script1.fsx" />
     <None Include="Script2.fsx" />
     <Compile Include="TestIOProvider.fs" />

@@ -13,20 +13,25 @@
 <!-- fops -cd -src=C:\source\b\e -dst=C:\dest -->
 <!-- fops -cf -src=C:\source\b\f2.pdf -dst=C:dest\f3.pdf -->
 <!-- fops -l -src=C:\a\b\?*\* -dst=C:\e\f -->
-<job id="j4" base-src="C:\source" base-dst="C:\dest">
-  <delete src="a\b\c\*\d\*.tmp" />
-  <delete src="a\b\c\f1.pdb" />
-  <delete-dir src="a\b" />
-  <copy-file src="b\f2.pdf" dst="c\f3.pdf" />
-  <copy-dir src="b\e\" dst="\">
-    <exclude src="*\*.tmp" />
-    <exclude src="*\bin\*.pdb" />
-  </copy-dir>
-  <copy src="a\?*\b\*\*.t*" dst="e" force="true">
-    <exclude src="c\*" />
-    <exclude src="d\*" />
-    <exclude src="e\*" />
-  </copy>
-  <link src="C:\a\b\?*\*.*" dst="C:\e\f"/>
-</job>
 
+<!-- TODO: add force (delete read-only) & recursive to delete ?-->
+<!-- <delete-dir src="a\b" force="true" recursive="true"/>-->
+
+<jobs>
+  <job id="j4" base-src="C:\source" base-dst="C:\dest">
+    <delete src="a\b\c\*\d\*.tmp" />
+    <delete src="a\b\c\f1.pdb" />
+    <delete-dir src="a\b" />
+    <copy-file src="b\f2.pdf" dst="c\f3.pdf" />
+    <copy-dir src="b\e\" dst="\">
+      <exclude src="*\*.tmp" />
+      <exclude src="*\bin\*.pdb" />
+    </copy-dir>
+    <copy src="a\?*\b\*\*.t*" dst="e" force="true">
+      <exclude src="c\*" />
+      <exclude src="d\*" />
+      <exclude src="e\*" />
+    </copy>
+    <link src="\a\b\?*\*.*" dst="\e\f"/>
+  </job>
+</jobs>

@@ -24,7 +24,7 @@ type Engine(server: IOServer, ?log:Log) =
   let lwarn src dst reason = sprintf "link: %s -> %s (%s)" src dst reason |> info
   let yinfo src = sprintf "delete: %s (DONE)" src |> info
 
-  let yankFile src = 
+  let yankPattern src = 
     let spec = {
       Pattern = Wildcard.toRegex src
       Exclude = []
@@ -37,6 +37,10 @@ type Engine(server: IOServer, ?log:Log) =
     node.AllFiles |> Seq.iter (fun f -> 
                                   yank f.Path
                                   yinfo f.Path)
+
+  let yankFolder src =
+    server.Provider.DeleteFolder (src, true)
+    yinfo src
 
   let copyFile (copy, info, warn) (src, dst, force) =
     let exists = server.Provider.FileExists
@@ -91,7 +95,11 @@ type Engine(server: IOServer, ?log:Log) =
     | FileMode    -> copyFile (link, linfo, lwarn) (f, t, o)
     | FolderMode  -> copyFolder (link, linfo, lwarn) (f, t, o, e)
     | PatternMode -> copyPattern (link, linfo, lwarn) (f, t, o, e)
-  | Yank f        -> yankFile f
+  | Yank (s, t)   ->  
+    match t with
+    | FileMode    -> fail "invalid mode for delete"
+    | FolderMode  -> yankFolder s
+    | PatternMode -> yankPattern s
 
   let runJob (job:Job) = Seq.iter runItem job.Items
   

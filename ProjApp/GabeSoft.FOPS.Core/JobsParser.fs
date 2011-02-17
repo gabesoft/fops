@@ -8,11 +8,13 @@ open System.Xml.Linq
 open GabeSoft.FOPS.Core
 
 type ParseException (message:string, ?innerException:Exception) =
-   inherit Exception (
-      message, 
-      match innerException with | Some ex -> ex | None -> null)
+  inherit Exception (
+    message, 
+    match innerException with | Some ex -> ex | None -> null)
 
 module JobsParser =
+  let defaults = Map.ofList [ "force", true ]
+
   let fail message = raise (new ParseException(message))
   let lname (elem: XElement) = elem.Name.LocalName
   let xname name = XName.Get (name)
@@ -49,45 +51,48 @@ module JobsParser =
     | false, _  -> def
 
   let parseExclude (elem: XElement) = 
-    getAttr "path" elem true
+    getAttr "src" elem true
 
   let parseCopy f (elem: XElement) =
     let excludes = xsons "exclude" elem 
                     |> Seq.map parseExclude
                     |> Seq.toList
-    let from = getAttr "from" elem true
-    let to' = getAttr "to" elem true
-    let overwrite = getAttr "force" elem false
-    f (from, to', overwrite |> toBool true, excludes)
+    let src = getAttr "src" elem true
+    let dst = getAttr "dst" elem true
+    let force = getAttr "force" elem false
+    f (src, dst, force |> toBool defaults.["force"], excludes)
 
-  let parseYank (elem: XElement) =
-    Yank (getAttr "from" elem true)
+  let parseYank f (elem: XElement) =
+    let src = getAttr "src" elem true
+    f (getAttr "src" elem true)
 
   let parseItem (elem: XElement) = 
     match lname elem with
-    | "copy"       -> parseCopy (Item.copy PatternMode) elem
-    | "copy-file"  -> parseCopy (Item.copy FileMode) elem
-    | "copy-dir"   -> parseCopy (Item.copy FolderMode) elem
-    | "link"       -> parseCopy (Item.link PatternMode) elem
-    | "link-file"  -> parseCopy (Item.link FileMode) elem
-    | "link-dir"   -> parseCopy (Item.link FolderMode) elem
-    | "yank"       -> parseYank elem
-    | n            -> fail (sprintf "unknown element %s" n)
+    | "copy"        -> parseCopy (Item.copy PatternMode) elem
+    | "copy-file"   -> parseCopy (Item.copy FileMode) elem
+    | "copy-dir"    -> parseCopy (Item.copy FolderMode) elem
+    | "link"        -> parseCopy (Item.link PatternMode) elem
+    | "link-file"   -> parseCopy (Item.link FileMode) elem
+    | "link-dir"    -> parseCopy (Item.link FolderMode) elem
+    | "delete"      -> parseYank (Item.yank PatternMode) elem
+    | "delete-dir"  -> parseYank (Item.yank FolderMode) elem
+    | n             -> fail (sprintf "unknown element %s" n)
 
   let parseJob (elem: XElement) =
     let id = getAttr "id" elem true
-    let basePath = getAttr "basePath" elem false 
+    let baseSrc = getAttr "base-src" elem false 
+    let baseDst = getAttr "base-dst" elem false 
     let items = xsons "copy" elem      
                 |> Seq.append (xsons "copy-file" elem)
                 |> Seq.append (xsons "copy-dir" elem)
                 |> Seq.append (xsons "link" elem)
                 |> Seq.append (xsons "link-file" elem)
                 |> Seq.append (xsons "link-dir" elem)
-                |> Seq.append (xsons "yank" elem)
+                |> Seq.append (xsons "delete" elem)
+                |> Seq.append (xsons "delete-dir" elem)
                 |> Seq.map parseItem
                 |> Seq.toList
-  //      new Job(items, id, basePath)
-    failwith "not implemented"    
+    new Job(items, id, baseSrc, baseDst)
 
   let parseDocument (xdoc: XDocument) = 
     xdoc.Root

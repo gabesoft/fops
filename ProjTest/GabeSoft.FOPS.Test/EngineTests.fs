@@ -50,7 +50,7 @@ let mkServer paths =
 [<Scenario>]
 let ``Yank should delete the selected files`` () = 
   let src = @"C:\a\b\c\f*.doc"
-  let job = src |> Item.yank |> mkJob
+  let job = src |> Item.yank PatternMode |> mkJob
   let paths = [   @"C:\a\b\f1.doc"
                   @"C:\a\b\c\f2.doc"
                   @"C:\a\b\c\f3.doc"
@@ -72,7 +72,7 @@ let deleted path (provider: IOProvider) =
 [<Scenario>]
 let ``Yank should not delete unselected files`` () =
   let src = @"C:\a\b\c\f*.doc"
-  let job = src |> Item.yank |> mkJob
+  let job = src |> Item.yank PatternMode |> mkJob
   let paths = [   @"C:\a\b\f1.doc"
                   @"C:\a\b\c\f2.doc"
                   @"C:\a\b\c\f3.doc"
@@ -92,6 +92,33 @@ let ``Yank should not delete unselected files`` () =
   |> It shouldn't have (deleted paths.[6])
   |> It shouldn't have (deleted paths.[7])
   |> Verify
+
+[<Scenario>]
+let ``Yank folder should delete entire folder`` () =
+  let src = @"C:\a\b"
+  let job = src |> Item.yank FolderMode |> mkJob
+  let paths = [   @"C:\a\c\f1.doc"
+                  @"C:\a\d\f\f1.doc"
+                  @"C:\a\b\f1.doc"
+                  @"C:\a\b\c\f2.doc"
+                  @"C:\a\b\c\f3.doc"
+                  @"C:\a\b\c\foo.doc"
+                  @"C:\a\b\c\p3.doc"
+                  @"C:\a\b\c\e3.doc"
+                  @"C:\a\b\c\f4.pdf"
+                  @"C:\a\b\c\d\f5.doc" ]
+
+  let provider = mkTestProvider paths
+  let server = new IOServer(provider)
+
+  Given (server, job)
+  |> When running_job
+  |> It shouldn't have (deleted @"C:\a\c")
+  |> It shouldn't have (deleted @"C:\a\d")
+  |> It shouldn't have (deleted @"C:\a\f")
+  |> It should have (deleted @"C:\a\b")
+  |> Verify
+
 
 [<Scenario>]
 let ``Copy file should use correct paths`` () =

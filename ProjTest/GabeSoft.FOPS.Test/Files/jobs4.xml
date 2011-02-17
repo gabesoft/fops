@@ -1,23 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <jobs>
-  <job id="j1" basePath="F:\Source">
-    <copy from="C:\Source\*.*" to="C:\Dest" force="false"/>
-    <!--<copy from="C:\Source\Temp\file.txt" tofile="C:\Dest\file.doc" />-->
-    <copy from="C:\Source\Temp\file.txt" to="C:\Dest" />
-    <link from="C:\Source\*\cache\?*\f*.pd?" to="C:\Dest" />
-    <link from="Dir1\*\cache\?*\f*.pd?" to="C:\Dest" >
-      <exclude path="Dir1\*\cache\a\f*.pdb" />
+  <job id="j1" base-src="F:\Source">
+    <copy src="C:\Source\*.*" dst="C:\Dest" force="false"/>
+    <copy-file src="C:\Source\Temp\file.txt" dst="C:\Dest\file.doc" />
+    <copy src="C:\Source\Temp\file.txt" dst="C:\Dest" />
+    <link src="C:\Source\*\cache\?*\f*.pd?" dst="C:\Dest" />
+    <link src="Dir1\*\cache\?*\f*.pd?" dst="C:\Dest" >
+      <exclude src="Dir1\*\cache\a\f*.pdb" />
     </link>
-    <yank from="C:\Temp\*\obj\*.*" />
+    <yank src="C:\Temp\*\obj\*.*" />
   </job>
   <job id="j2">
-    <copy from="C:\Code\Proj\*\*.*" to="C:\Output">
-      <exclude path="C:\Output\Proj\*\obj\*" />
-      <exclude path="C:\Output\Proj\*\tmp\*" />
+    <copy src="Code\Proj\*\*.*" dst="Output">
+      <exclude src="Code\Proj\*\obj\*" />
+      <exclude src="Code\Proj\*\tmp\*" />
     </copy>
   </job>
 
-  <!--TODO: all individual job item functionality should be available from cmd line-->
+  <!--TODO: all individual job item functionality should be available src cmd line-->
   <!--copy       (allows excludes): multiple files copy in one destination directory -->
   <!--copy-file                   : single file copy to a destination file -->
   <!--copy-dir   (allows excludes): recursive directory copy including subfolders -->
@@ -25,16 +25,16 @@
   <!--link-file-->
   <!--link-dir   (allows excludes)-->
 
-  <job id="j3" baseFrom="C:\Source" baseTo="C:\Dest">
-    <copy-file from="C:\Source\f1.txt" to="C:\Dest\f2.txt" />
-    <copy from="C:\Source\*\cache\*.doc" to="C:\Dest">
-      <exclude path="C:\Source\*\cache\f?.doc" />
-      <exclude path="C:\Source\*\cache\p*.doc" />
+  <job id="j3" base-src="C:\Source" base-dst="C:\Dest">
+    <copy-file src="C:\Source\f1.txt" dst="C:\Dest\f2.txt" />
+    <copy src="C:\Source\*\cache\*.doc" dst="C:\Dest">
+      <exclude src="C:\Source\*\cache\f?.doc" />
+      <exclude src="C:\Source\*\cache\p*.doc" />
     </copy>
-    <copy-dir from="C:\Source\a\b" to="C:\Dest">
-      <exclude path="C:\Source\a\b\*\*.tmp" />
-      <exclude path="C:\Source\a\b\c\*" />
-      <exclude path="C:\Source\a\b\?*\d\*" />
+    <copy-dir src="C:\Source\a\b" dst="C:\Dest">
+      <exclude src="C:\Source\a\b\*\*.tmp" />
+      <exclude src="C:\Source\a\b\c\*" />
+      <exclude src="C:\Source\a\b\?*\d\*" />
     </copy-dir>
   </job>
 </jobs>

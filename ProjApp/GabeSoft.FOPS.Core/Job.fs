@@ -2,30 +2,58 @@
 
 open System
 
-type CopyType = 
-   /// Copy a single file.
+type ItemType = 
+   /// copy/delete a single file
    | FileMode 
-   /// Copy all contents of a folder recursively.
+   /// copy/delete all contents of a folder recursively
    | FolderMode 
-   /// Copy a list of files that match a wildcard pattern.
+   /// copy/delete a list of files that match a wildcard pattern
    | PatternMode
 
 /// File operations job item.
 type Item = 
-   /// Copy (from, to, force, excludes, type)
-   | Copy of string * string * bool * string list * CopyType
-   /// Hard link (from, to, force, excludes, type)
-   | Link of string * string * bool * string list * CopyType
-   /// Delete (from)
-   | Yank of string
+   /// Copy (src, dst, force, exclude, type)
+   | Copy of string * string * bool * string list * ItemType
+   /// Hard link (src, dst, force, exclude, type)
+   | Link of string * string * bool * string list * ItemType
+   /// Delete (src)
+   | Yank of string * ItemType
    /// Constructs a copy item.
-   static member copy c (f, t, o, e) = Copy (f, t, o, e, c)
+   static member copy c (s, d, o, e) = Copy (s, d, o, e, c)
    /// Constructs a link item.
-   static member link c (f, t, o, e) = Link (f, t, o, e, c)
+   static member link c (s, d, o, e) = Link (s, d, o, e, c)
    /// Constructs a delete item.
-   static member yank f = Yank f
+   static member yank c s = Yank (s, c)
 
 /// File operations job.
-type Job (items:Item list, id) =
-   member x.Id with get() = id
-   member x.Items with get() = items
+type Job (items:Item list, ?id, ?baseSrc, ?baseDst) =
+  let _id = match id with Some e -> e | _ -> Guid.NewGuid().ToString()
+  let _baseSrc = match baseSrc with Some b -> b | _ -> String.Empty
+  let _baseDst = match baseDst with Some b -> b | _ -> String.Empty
+
+  let empty s = String.IsNullOrEmpty(s)
+  let complete parent path = 
+    let parent = parent |> Path.normalize
+    let path = match empty parent with
+                | true  -> path |> Path.normalize
+                | false -> path |> Path.trim |> Path.normalize
+    match Path.rooted path, empty parent with
+    | true, _      -> path
+    | false, true  -> Path.combine Path.cwd path
+    | false, false -> Path.combine parent path
+  let completeDst = complete _baseDst
+  let completeSrc = complete _baseSrc
+    
+  let makePathsAbsolute = function
+  | Copy (s, d, o, e, c)  -> 
+    Copy (completeSrc s, completeDst d, o, List.map completeSrc e, c)
+  | Link (s, d, o, e, c)  -> 
+    Link (completeSrc s, completeDst d, o, List.map completeSrc e, c)
+  | Yank (s, c)           -> Yank (completeSrc s, c)
+
+  let _items = items |> List.map makePathsAbsolute
+
+  member x.Id with get() = _id
+  member x.Items with get() = _items
+  member x.BaseSrc with get() = _baseSrc
+  member x.BaseDst with get() = _baseDst

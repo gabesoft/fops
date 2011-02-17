@@ -36,11 +36,11 @@ type JobCreator(opts:Options, log:Log) =
   let completeSrc = complete opts.BaseSrc
     
   let makePathsAbsolute = function
-  | Copy (f, t, o, e, c)  -> 
-    Copy (completeSrc f, completeDst t, o, List.map completeSrc e, c)
-  | Link (f, t, o, e, c)  -> 
-    Link (completeSrc f, completeDst t, o, List.map completeSrc e, c)
-  | Yank (f)              -> Yank (completeSrc f)
+  | Copy (s, d, o, e, c)  -> 
+    Copy (completeSrc s, completeDst d, o, List.map completeSrc e, c)
+  | Link (s, d, o, e, c)  -> 
+    Link (completeSrc s, completeDst d, o, List.map completeSrc e, c)
+  | Yank (s, c)           -> Yank (completeSrc s, c)
 
   let fromFile : unit -> Job =
     failwith "not implemented"
