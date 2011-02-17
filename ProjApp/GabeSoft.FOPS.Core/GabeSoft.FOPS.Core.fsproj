@@ -44,7 +44,7 @@
     <Compile Include="Options.fs" />
     <Compile Include="Job.fs" />
     <Compile Include="JobsParser.fs" />
-    <Compile Include="JobCreator.fs" />
+    <Compile Include="OptionsValidator.fs" />
     <Compile Include="Wildcard.fs" />
     <Compile Include="Filter.fs" />
     <Compile Include="Engine.fs" />

@@ -1041,25 +1041,25 @@ namespace GabeSoft.FOPS.Cmd
 
         private const int OptionWidth = 29;
 
-        public void WriteOptionDescriptions(TextWriter o) {
+        public void WriteOptionDescriptions(TextWriter writer) {
             foreach (Option p in this) {
                 int written = 0;
-                if (!WriteOptionPrototype(o, p, ref written))
+                if (!WriteOptionPrototype(writer, p, ref written))
                     continue;
 
                 if (written < OptionWidth)
-                    o.Write(new string(' ', OptionWidth - written));
+                    writer.Write(new string(' ', OptionWidth - written));
                 else {
-                    o.WriteLine();
-                    o.Write(new string(' ', OptionWidth));
+                    writer.WriteLine();
+                    writer.Write(new string(' ', OptionWidth));
                 }
 
                 bool indent = false;
                 string prefix = new string(' ', OptionWidth + 2);
                 foreach (string line in GetLines(localizer(GetDescription(p.Description)))) {
                     if (indent)
-                        o.Write(prefix);
-                    o.WriteLine(line);
+                        writer.Write(prefix);
+                    writer.WriteLine(line);
                     indent = true;
                 }
             }
@@ -1071,32 +1071,32 @@ namespace GabeSoft.FOPS.Cmd
 
                 int written = 0;
 
-                Write(o, ref written, "  ");
-                Write(o, ref written, names[0]);
+                Write(writer, ref written, "  ");
+                Write(writer, ref written, names[0]);
                 for (int i = 1; i < names.Length; ++i) {
-                    Write(o, ref written, ", ");
-                    Write(o, ref written, names[i]);
+                    Write(writer, ref written, ", ");
+                    Write(writer, ref written, names[i]);
                 }
 
                 if (written < OptionWidth)
-                    o.Write(new string(' ', OptionWidth - written));
+                    writer.Write(new string(' ', OptionWidth - written));
                 else {
-                    o.WriteLine();
-                    o.Write(new string(' ', OptionWidth));
+                    writer.WriteLine();
+                    writer.Write(new string(' ', OptionWidth));
                 }
 
                 bool indent = false;
                 string prefix = new string(' ', OptionWidth + 2);
                 foreach (string line in GetLines(localizer(GetDescription(s.Description)))) {
                     if (indent)
-                        o.Write(prefix);
-                    o.WriteLine(line);
+                        writer.Write(prefix);
+                    writer.WriteLine(line);
                     indent = true;
                 }
             }
         }
 
-        bool WriteOptionPrototype(TextWriter o, Option p, ref int written) {
+        bool WriteOptionPrototype(TextWriter writer, Option p, ref int written) {
             string[] names = p.Names;
 
             int i = GetNextOptionIndex(names, 0);
@@ -1104,35 +1104,35 @@ namespace GabeSoft.FOPS.Cmd
                 return false;
 
             if (names[i].Length == 1) {
-                Write(o, ref written, "  -");
-                Write(o, ref written, names[0]);
+                Write(writer, ref written, "  -");
+                Write(writer, ref written, names[0]);
             }
             else {
-                Write(o, ref written, "      --");
-                Write(o, ref written, names[0]);
+                Write(writer, ref written, "      --");
+                Write(writer, ref written, names[0]);
             }
 
             for (i = GetNextOptionIndex(names, i + 1);
                     i < names.Length; i = GetNextOptionIndex(names, i + 1)) {
-                Write(o, ref written, ", ");
-                Write(o, ref written, names[i].Length == 1 ? "-" : "--");
-                Write(o, ref written, names[i]);
+                Write(writer, ref written, ", ");
+                Write(writer, ref written, names[i].Length == 1 ? "-" : "--");
+                Write(writer, ref written, names[i]);
             }
 
             if (p.OptionValueType == OptionValueType.Optional ||
                     p.OptionValueType == OptionValueType.Required) {
                 if (p.OptionValueType == OptionValueType.Optional) {
-                    Write(o, ref written, localizer("["));
+                    Write(writer, ref written, localizer("["));
                 }
-                Write(o, ref written, localizer("=" + GetArgumentName(0, p.MaxValueCount, p.Description)));
+                Write(writer, ref written, localizer("=" + GetArgumentName(0, p.MaxValueCount, p.Description)));
                 string sep = p.ValueSeparators != null && p.ValueSeparators.Length > 0
                     ? p.ValueSeparators[0]
                     : " ";
                 for (int c = 1; c < p.MaxValueCount; ++c) {
-                    Write(o, ref written, localizer(sep + GetArgumentName(c, p.MaxValueCount, p.Description)));
+                    Write(writer, ref written, localizer(sep + GetArgumentName(c, p.MaxValueCount, p.Description)));
                 }
                 if (p.OptionValueType == OptionValueType.Optional) {
-                    Write(o, ref written, localizer("]"));
+                    Write(writer, ref written, localizer("]"));
                 }
             }
             return true;
@@ -1145,9 +1145,9 @@ namespace GabeSoft.FOPS.Cmd
             return i;
         }
 
-        static void Write(TextWriter o, ref int n, string s) {
+        static void Write(TextWriter writer, ref int n, string s) {
             n += s.Length;
-            o.Write(s);
+            writer.Write(s);
         }
 
         private static string GetArgumentName(int index, int maxIndex, string description) {

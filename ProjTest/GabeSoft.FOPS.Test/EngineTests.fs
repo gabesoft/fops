@@ -20,8 +20,6 @@ open GabeSoft.FOPS.Test
 //  - test yank
 //  - test excludes
 
-// - test delete directory !!!!!!!!!!!!!!!!!!!!!
-
 let running_job (server: IOServer, job: Job) =
   printMethod "\n"
   let engine = new Engine(server)

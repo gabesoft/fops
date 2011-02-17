@@ -59,6 +59,7 @@
     <Compile Include="WildcardTests.fs" />
     <Compile Include="FilterTestsData.fs" />
     <Compile Include="FilterTests.fs" />
+    <Compile Include="OptionsValidatorTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack, Version=2.0.0.0, Culture=neutral, PublicKeyToken=a19089b1c74d0809" />

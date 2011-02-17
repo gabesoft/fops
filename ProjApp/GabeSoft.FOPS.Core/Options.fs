@@ -4,8 +4,10 @@ open System
 open Microsoft.FSharp.Text
 open GabeSoft.FOPS.Cmd
 
-type Options (args, ?app) =
+/// Object used to hold all options specified on the command line.
+type Options (args, ?log:Log, ?app) =
   let _app = match app with Some x -> x | None -> "fops"
+  let _log = match log with Some x -> x | None -> new LogImpl() :> Log
   
   let mutable _help = false
   let mutable _file = String.Empty
@@ -65,9 +67,9 @@ type Options (args, ?app) =
 
     set.Parse(args) |> ignore
 
-  let writeln text = Console.WriteLine(text:string)
+  let writeln text = _log.Info text
   let cmd text = sprintf "  %s %s" _app text |> writeln
-  let writeOpts () = set.WriteOptionDescriptions(Console.Out)
+  let writeOpts () = set.WriteOptionDescriptions(_log.InfoWriter)
         
   member x.Help with get() = _help
   member x.File with get() = _file
