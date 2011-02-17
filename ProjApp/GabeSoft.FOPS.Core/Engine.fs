@@ -41,6 +41,7 @@ type Engine(server: IOServer, ?log:Log) =
   let yankFolder src =
     server.Provider.DeleteFolder (src, true)
     yinfo src
+    // TODO: if directory still exists (warn some files could not be deleted)
 
   let copyFile (copy, info, warn) (src, dst, force) =
     let exists = server.Provider.FileExists
