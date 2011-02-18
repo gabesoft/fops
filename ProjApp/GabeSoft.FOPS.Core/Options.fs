@@ -38,7 +38,7 @@ type Options (args, ?log:Log, ?app) =
     add "d|delete"      (fun (v:string) -> _yank <- true)
         @"Delete all files that match a wildcard
           pattern (including read-only!)." 
-    add "deletedir"  (fun (v:string) -> _yankd <- true)
+    add "D|deletedir"  (fun (v:string) -> _yankd <- true)
         "Delete an entire directory recursively!"
     add "c|copy"        (fun (v:string) -> _copy <- true)
         "Copy files according to a wildcard pattern." 
@@ -48,19 +48,19 @@ type Options (args, ?log:Log, ?app) =
         "Copy a single file."
     add "linkfile"   (fun (v:string) -> _linkf <- true)
         "Link a single file."
-    add "p|copydir"    (fun (v:string) -> _copyd <- true)
+    add "C|copydir"    (fun (v:string) -> _copyd <- true)
         "Copy a directory recursively."
-    add "n|linkdir"    (fun (v:string) -> _linkd <- true)
+    add "L|linkdir"    (fun (v:string) -> _linkd <- true)
         "Link a directory recursively."
-    add "o|force"       (fun (v:string) -> _force <- true)
+    add "F|force"       (fun (v:string) -> _force <- true)
         "Overwrite any existing files at destination"
     add "src="          (fun v -> _src <- v)
         "Source path (filesystem path or wildcard pattern)."
     add "dst="          (fun v -> _dst <- v)
         "Destination path (filesystem path or wildcard pattern)."
-    add "basesrc="      (fun v -> _baseSrc <- v)
+    add "b|basesrc="      (fun v -> _baseSrc <- v)
         "Base source directory path."
-    add "basedst="      (fun v -> _baseDst <- v)
+    add "B|basedst="      (fun v -> _baseDst <- v)
         "Base destination directory path."
     add "j|jobid="      (fun v -> _jobId <- v)
         "The id of a job to run. Omit to run all jobs."
@@ -89,14 +89,14 @@ type Options (args, ?log:Log, ?app) =
   member x.JobId with get() = _jobId
   member x.WriteUsage () = 
     cmd "--file=<path> [-basesrc=<path>] [-basedst=<path>] [-jobid=<id>]"
-    cmd "--delete      -src=<pattern>"
-    cmd "--deletedir   -src=<path>"
-    cmd "--copy        -src=<pattern>  -dst=<path> [-f]"
-    cmd "--copyfile    -src=<path>     -dst=<path> [-f]"
-    cmd "--copydir     -src=<path>     -dst=<path> [-f]"
-    cmd "--link        -src=<pattern>  -dst=<path> [-f]"
-    cmd "--linkfile    -src=<path>     -dst=<path> [-f]"
-    cmd "--linkdir     -src=<path>     -dst=<path> [-f]"
+    cmd "--delete      --src=<pattern>"
+    cmd "--deletedir   --src=<path>"
+    cmd "--copy        --src=<pattern>  --dst=<path> [-force]"
+    cmd "--copyfile    --src=<path>     --dst=<path> [-force]"
+    cmd "--copydir     --src=<path>     --dst=<path> [-force]"
+    cmd "--link        --src=<pattern>  --dst=<path> [-force]"
+    cmd "--linkfile    --src=<path>     --dst=<path> [-force]"
+    cmd "--linkdir     --src=<path>     --dst=<path> [-force]"
     writeln String.Empty
     writeOpts ()
     writeln ""
@@ -109,6 +109,18 @@ type Options (args, ?log:Log, ?app) =
     writeln "  or relative to the basesrc."
     writeln "  The wildcard pattern may contain a '*' that "
     writeln "  matches zero or more characters or a '?' that matches"
-    writeln "  a single character. Directory match works as follows:"
-    writeln "  /*/ matches any directory any level deep"
-    writeln "  /?*/ matches any directory exactly one level deep"
+    writeln "  a single character."
+    writeln @"  Directory match works as follows:"
+    writeln @"  - /*/ matches any directory any level deep"
+    writeln @"  - /?*/ matches any directory exactly one level deep"
+    writeln @"  Pattern examples:"
+    writeln @"  - C:\*       (matches all files in the root directory)"
+    writeln @"  - C:\*\*     (matches all files in the root directory "
+    writeln @"                and all its sub directories any level deep)"
+    writeln @"  - C:\a\*     (matches all files in 'a' directory)"
+    writeln @"  - C:\a\b*\*  (matches all files in all sub directories of"
+    writeln @"                'a' that start with letter 'b'"
+    writeln @"  - C:\?*\f.txt"
+    writeln @"  - C:\a\*\b\*.txt"
+    writeln @"  - C:\a\?*\b\c*.pd?"
+    writeln @"  - C:\a\*\b\?*\c\f?*.txt"

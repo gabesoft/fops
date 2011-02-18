@@ -17,12 +17,16 @@ type Engine(server: IOServer, ?log:Log) =
   let copy src dst = server.Provider.Copy (src, dst)
   let link src dst = server.Provider.Link (src, dst)
   let yank src = server.Provider.DeleteFile src
+  let yankd src = server.Provider.DeleteFolder (src, true)
 
   let cinfo src dst = sprintf "copy: %s -> %s (DONE)" src dst |> info
-  let cwarn src dst reason = sprintf "copy: %s -> %s (%s)" src dst reason |> info
+  let cwarn src dst reason = sprintf "copy: %s -> %s (%s)" src dst reason |> warn
   let linfo src dst = sprintf "link: %s -> %s (DONE)" src dst |> info
-  let lwarn src dst reason = sprintf "link: %s -> %s (%s)" src dst reason |> info
+  let lwarn src dst reason = sprintf "link: %s -> %s (%s)" src dst reason |> warn
   let yinfo src = sprintf "delete: %s (DONE)" src |> info
+  let ywarn src reason = sprintf "delete: %s (%s)" src reason |> warn
+  let ydinfo src = sprintf "delete-dir: %s (DONE)" src |> info
+  let ydwarn src reason = sprintf "delete-dir: %s (%s)" src reason |> warn
 
   let yankPattern src = 
     let spec = {
@@ -39,9 +43,10 @@ type Engine(server: IOServer, ?log:Log) =
                                   yinfo f.Path)
 
   let yankFolder src =
-    server.Provider.DeleteFolder (src, true)
-    yinfo src
-    // TODO: if directory still exists (warn some files could not be deleted)
+    yankd src
+    match server.Provider.FolderExists src with
+    | true  -> ydwarn src "DONE: some files could not be deleted"
+    | false -> ydinfo src
 
   let copyFile (copy, info, warn) (src, dst, force) =
     let exists = server.Provider.FileExists

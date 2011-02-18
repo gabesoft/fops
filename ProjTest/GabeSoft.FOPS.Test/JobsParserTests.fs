@@ -107,10 +107,11 @@ let expected_src_paths jobs =
 let check_start_with items src dst =
   let srcOk (path:string) = path.StartsWith(@"C:\source")
   let dstOk (path:string) = path.StartsWith(@"C:\dest")
-  items |> List.map (function 
-            | Copy (s, d, _, _, _)  -> srcOk s && dstOk d
-            | Link (s, d, _, _, _)  -> srcOk s && dstOk d
-            | Yank (s, _)           -> srcOk s)
+  items 
+    |> List.map (function 
+        | Copy (s, d, _, e, _)  -> srcOk s && dstOk d && List.forall srcOk e
+        | Link (s, d, _, e, _)  -> srcOk s && dstOk d && List.forall srcOk e
+        | Yank (s, _)           -> srcOk s)
 
 let expected_base_paths jobs =
   let job = get_job_with_id "j4" jobs

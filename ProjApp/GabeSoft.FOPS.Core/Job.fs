@@ -19,9 +19,9 @@ type Item =
    /// Delete (src)
    | Yank of string * ItemType
    /// Constructs a copy item.
-   static member copy c (s, d, o, e) = Copy (s, d, o, e, c)
+   static member copy c (s, d, f, e) = Copy (s, d, f, e, c)
    /// Constructs a link item.
-   static member link c (s, d, o, e) = Link (s, d, o, e, c)
+   static member link c (s, d, f, e) = Link (s, d, f, e, c)
    /// Constructs a delete item.
    static member yank c s = Yank (s, c)
 
@@ -45,10 +45,10 @@ type Job (items:Item list, ?id, ?baseSrc, ?baseDst) =
   let completeSrc = complete _baseSrc
     
   let makePathsAbsolute = function
-  | Copy (s, d, o, e, c)  -> 
-    Copy (completeSrc s, completeDst d, o, List.map completeSrc e, c)
-  | Link (s, d, o, e, c)  -> 
-    Link (completeSrc s, completeDst d, o, List.map completeSrc e, c)
+  | Copy (s, d, f, e, c)  -> 
+    Copy (completeSrc s, completeDst d, f, List.map completeSrc e, c)
+  | Link (s, d, f, e, c)  -> 
+    Link (completeSrc s, completeDst d, f, List.map completeSrc e, c)
   | Yank (s, c)           -> Yank (completeSrc s, c)
 
   let _items = items |> List.map makePathsAbsolute
@@ -57,3 +57,5 @@ type Job (items:Item list, ?id, ?baseSrc, ?baseDst) =
   member x.Items with get() = _items
   member x.BaseSrc with get() = _baseSrc
   member x.BaseDst with get() = _baseDst
+  member x.WithSrc baseSrc = new Job(items, _id, baseSrc, _baseDst)
+  member x.WithDst baseDst = new Job(items, _id, _baseSrc, baseDst)
