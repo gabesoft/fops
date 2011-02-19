@@ -19,6 +19,8 @@ type Options (args, ?log:Log, ?app) =
   let mutable _link = false
   let mutable _linkf = false
   let mutable _linkd = false
+  let mutable _movef = false
+  let mutable _moved = false
   let mutable _force = false
   let mutable _src = String.Empty
   let mutable _dst = String.Empty
@@ -38,29 +40,33 @@ type Options (args, ?log:Log, ?app) =
     add "d|delete"      (fun (v:string) -> _yank <- true)
         @"Delete all files that match a wildcard
           pattern (including read-only!)." 
-    add "D|deletedir"  (fun (v:string) -> _yankd <- true)
+    add "D|deletedir"   (fun (v:string) -> _yankd <- true)
         "Delete an entire directory recursively!"
     add "c|copy"        (fun (v:string) -> _copy <- true)
         "Copy files according to a wildcard pattern." 
     add "l|link"        (fun (v:string) -> _link <- true)
         "Link files according to a wildcard pattern." 
-    add "copyfile"   (fun (v:string) -> _copyf <- true)
+    add "copyfile"      (fun (v:string) -> _copyf <- true)
         "Copy a single file."
-    add "linkfile"   (fun (v:string) -> _linkf <- true)
+    add "linkfile"      (fun (v:string) -> _linkf <- true)
         "Link a single file."
-    add "C|copydir"    (fun (v:string) -> _copyd <- true)
+    add "m|movefile"    (fun (v:string) -> _movef <- true)
+        "Rename a file."
+    add "C|copydir"     (fun (v:string) -> _copyd <- true)
         "Copy a directory recursively."
-    add "L|linkdir"    (fun (v:string) -> _linkd <- true)
+    add "L|linkdir"     (fun (v:string) -> _linkd <- true)
         "Link a directory recursively."
+    add "M|movedir"     (fun (v:string) -> _moved <- true)
+        "Rename or move a directory."
     add "F|force"       (fun (v:string) -> _force <- true)
         "Overwrite any existing files at destination"
     add "src="          (fun v -> _src <- v)
         "Source path (filesystem path or wildcard pattern)."
     add "dst="          (fun v -> _dst <- v)
         "Destination path (filesystem path or wildcard pattern)."
-    add "b|basesrc="      (fun v -> _baseSrc <- v)
+    add "b|basesrc="    (fun v -> _baseSrc <- v)
         "Base source directory path."
-    add "B|basedst="      (fun v -> _baseDst <- v)
+    add "B|basedst="    (fun v -> _baseDst <- v)
         "Base destination directory path."
     add "j|jobid="      (fun v -> _jobId <- v)
         "The id of a job to run. Omit to run all jobs."
@@ -81,6 +87,8 @@ type Options (args, ?log:Log, ?app) =
   member x.Link with get() = _link
   member x.LinkFile with get() = _linkf
   member x.LinkDir with get() = _linkd
+  member x.MoveFile with get() = _movef
+  member x.MoveDir with get() = _moved
   member x.Force with get() = _force
   member x.Src with get() = _src
   member x.Dst with get() = _dst
@@ -101,6 +109,11 @@ type Options (args, ?log:Log, ?app) =
     writeOpts ()
     writeln ""
     writeln "NOTES"
+    writeln "- copydir and movedir work as follows:"
+    writeln "  if the destination path is an existing directory"
+    writeln "  the source directory gets copied / moved inside the"
+    writeln "  destination directory, otherwise the source directory"
+    writeln "  gets copied / moved as the destination directory"
     writeln "- path: "
     writeln "  a filesystem path which can be absolute"
     writeln "  or relative to the basesrc or basedst"
@@ -124,3 +137,7 @@ type Options (args, ?log:Log, ?app) =
     writeln @"  - C:\a\*\b\*.txt"
     writeln @"  - C:\a\?*\b\c*.pd?"
     writeln @"  - C:\a\*\b\?*\c\f?*.txt"
+
+    // TODO: add  - m:movefile
+    //            - M:movedir
+    

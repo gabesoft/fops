@@ -53,6 +53,12 @@ let check_copy src dst force mode = function
   | Copy (s, d, f, _, c)  -> s = src && d = dst && f = force && c = mode
   | _                     -> false
 
+let check_link src dst force mode = function
+  | Link (s, d, f, _, c)  -> s = src && d = dst && f = force && c = mode
+  | _                     -> false
+
+let check_funs = Map.ofList ["copy", check_copy; "link", check_link]
+
 let expected_type check jobs = 
   let item = item jobs
   printMethod item
@@ -88,18 +94,51 @@ let ``Delete - has expected type and source`` () =
   |> Verify
 
 [<Scenario>]
-let ``Delete Dir - has expected type and source`` () =
+let ``Delete dir - has expected type and source`` () =
   let src = @"C:\a\b"
   Given (opts ["-D"; srcArg src])
   |> When validating
   |> It should have (expected_type (check_yank src FolderMode))
   |> Verify
 
-[<Scenario>]
-let ``Copy - has expected type and paths`` () =
+[<ScenarioTemplate("copy")>]
+[<ScenarioTemplate("link")>]
+let ``Copy - has expected type and paths`` (fkey) =
   let src = @"C:\a\?*\b\f?.p*"
   let dst = @"F:\Temp"
+  let fn = check_funs.[fkey]
   Given (opts ["-c"; srcArg src; dstArg dst; "-F"])
   |> When validating
-  |> It should have (expected_type (check_copy src dst true PatternMode))
+  |> It should have (expected_type (fn src dst true PatternMode))
   |> Verify
+
+[<ScenarioTemplate("copy")>]
+[<ScenarioTemplate("link")>]
+let  ``Copy file - has expected type and paths`` (fkey) =
+  let src = @"C:\a\b\f1.doc"
+  let dst = @"C:\a\c\f2.txt"
+  let fn = check_funs.[fkey]
+  Given (opts ["--copyfile"; srcArg src; dstArg dst])
+  |> When validating
+  |> It should have (expected_type (fn src dst false FileMode))
+  |> Verify
+
+[<ScenarioTemplate("copy")>]
+[<ScenarioTemplate("link")>]
+let ``Copy dir - has expected type and paths`` (fkey) =
+  let src = @"C:\a\b\"
+  let dst = @"C:\a\c\"
+  let fn = check_funs.[fkey]
+  Given (opts ["-C"; srcArg src; dstArg dst])
+  |> When validating
+  |> It should have (expected_type (fn src dst false FolderMode))
+  |> Verify
+  
+//[<Scenario>]
+//let ``Move file - has expected job items`` () =
+//  let src = @"C:\a\b\f1.doc"
+//  let dst = @"C:\a\c\f2.txt"
+//  Given (opts ["-m", srcArg; dstArg; "-F"]) 
+//  |> When validating
+//  |> It should have 
+//  |> Verify  

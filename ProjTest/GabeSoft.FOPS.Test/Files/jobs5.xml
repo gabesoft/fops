@@ -23,6 +23,8 @@
     <delete src="a\b\c\f1.pdb" />
     <delete-dir src="a\b" />
     <copy-file src="b\f2.pdf" dst="c\f3.pdf" />
+    <!-- if dst exists copy the source inside destination -->
+    <!-- otherwise copy the source as the destination -->
     <copy-dir src="b\e\" dst="\">
       <exclude src="*\*.tmp" />
       <exclude src="*\bin\*.pdb" />
@@ -33,5 +35,7 @@
       <exclude src="e\*" />
     </copy>
     <link src="\a\b\?*\*.*" dst="\e\f"/>
+    <move-file src="a\b\f1.doc" dst="a\c\f2.txt" />
+    <move-dir src="a\b" dst="a\b\c" />
   </job>
 </jobs>

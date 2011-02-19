@@ -117,7 +117,6 @@ let ``Yank folder should delete entire folder`` () =
   |> It should have (deleted @"C:\a\b")
   |> Verify
 
-
 [<Scenario>]
 let ``Copy file should use correct paths`` () =
   let src = @"C:\a\b\f1.txt"
@@ -139,14 +138,40 @@ let ``Copy dir should create directory structure`` () =
   let paths = [ @"f1.txt"
                 @"c\f2.txt"
                 @"d\f3.txt"
-                @"c\d\f4.txt" ] 
-                  
+                @"c\d\f4.txt" ]                   
   Given (paths |> List.map srcPath |> mkServer, job)
   |> When running_job
   |> Called <@fun x -> x.Copy@>(srcPath paths.[0], dstPath paths.[0])
   |> Called <@fun x -> x.Copy@>(srcPath paths.[1], dstPath paths.[1])
   |> Called <@fun x -> x.Copy@>(srcPath paths.[2], dstPath paths.[2])
   |> Called <@fun x -> x.Copy@>(srcPath paths.[3], dstPath paths.[3])
+  |> Verify
+
+[<Scenario>]
+let ``Copy dir should copy source inside existing directory`` () =
+  let src = @"C:\a\b"
+  let dst = @"C:\e\f"
+  let job = Item.copy FolderMode (src, dst, true, []) |> mkJob
+  let paths = [ @"C:\a\b\f1.txt"
+                @"C:\a\b\c\f2.txt"
+                @"C:\e\f" ]
+  Given (mkServer paths, job)
+  |> When running_job
+  |> Called <@fun x -> x.Copy@>(paths.[0], @"C:\e\f\b\f1.txt")
+  |> Called <@fun x -> x.Copy@>(paths.[1], @"C:\e\f\b\c\f2.txt")
+  |> Verify
+  
+[<Scenario>]
+let ``Copy dir should copy source as non-existing directory`` () =
+  let src = @"C:\a\b"
+  let dst = @"C:\e\f"
+  let job = Item.copy FolderMode (src, dst, true, []) |> mkJob
+  let paths = [ @"C:\a\b\f1.txt"
+                @"C:\a\b\c\f2.txt" ]
+  Given (mkServer paths, job)
+  |> When running_job
+  |> Called <@fun x -> x.Copy@>(paths.[0], @"C:\e\f\f1.txt")
+  |> Called <@fun x -> x.Copy@>(paths.[1], @"C:\e\f\c\f2.txt")
   |> Verify
 
 [<Scenario>]
