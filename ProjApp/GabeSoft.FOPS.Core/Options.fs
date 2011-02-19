@@ -111,9 +111,9 @@ type Options (args, ?log:Log, ?app) =
     writeln "NOTES"
     writeln "- copydir and movedir work as follows:"
     writeln "  if the destination path is an existing directory"
-    writeln "  the source directory gets copied / moved inside the"
+    writeln "  the source directory gets copied/moved inside the"
     writeln "  destination directory, otherwise the source directory"
-    writeln "  gets copied / moved as the destination directory"
+    writeln "  gets copied/moved as the destination directory"
     writeln "- path: "
     writeln "  a filesystem path which can be absolute"
     writeln "  or relative to the basesrc or basedst"
@@ -137,7 +137,4 @@ type Options (args, ?log:Log, ?app) =
     writeln @"  - C:\a\*\b\*.txt"
     writeln @"  - C:\a\?*\b\c*.pd?"
     writeln @"  - C:\a\*\b\?*\c\f?*.txt"
-
-    // TODO: add  - m:movefile
-    //            - M:movedir
     

@@ -11,12 +11,6 @@ open GabeSoft.FOPS.Core
 open GabeSoft.FOPS.Test
 
 let opts args = new Options(args)
-let item (jobs: Job list) = 
-  jobs
-  |> List.head 
-  |> (fun j -> j.Items)
-  |> List.head
-
 let srcArg src = sprintf "--src=%s" src
 let dstArg dst = sprintf "--dst=%s" dst
 
@@ -57,12 +51,10 @@ let check_link src dst force mode = function
   | Link (s, d, f, _, c)  -> s = src && d = dst && f = force && c = mode
   | _                     -> false
 
-let check_funs = Map.ofList ["copy", check_copy; "link", check_link]
-
-let expected_type check jobs = 
-  let item = item jobs
-  printMethod item
-  check item
+let expected_type (check: list<Item -> bool>) (jobs: Job list) = 
+  let items = (List.head jobs).Items
+  printMethod String.Empty
+  List.map2 (fun f e -> f e) check items |> List.forall id
 
 [<Scenario>]
 let ``File - creates all jobs`` () =
@@ -90,7 +82,7 @@ let ``Delete - has expected type and source`` () =
   let src = @"C:\a\b\*\c.txt"
   Given (opts ["-d"; srcArg src])
   |> When validating
-  |> It should have (expected_type (check_yank src PatternMode))
+  |> It should have (expected_type [check_yank src PatternMode])
   |> Verify
 
 [<Scenario>]
@@ -98,47 +90,57 @@ let ``Delete dir - has expected type and source`` () =
   let src = @"C:\a\b"
   Given (opts ["-D"; srcArg src])
   |> When validating
-  |> It should have (expected_type (check_yank src FolderMode))
+  |> It should have (expected_type [check_yank src FolderMode])
   |> Verify
 
-[<ScenarioTemplate("copy")>]
-[<ScenarioTemplate("link")>]
-let ``Copy - has expected type and paths`` (fkey) =
+[<ScenarioTemplate("-c")>]
+[<ScenarioTemplate("-l")>]
+let ``Copy - has expected type and paths`` (arg) =
+  let check_funs = Map.ofList ["-c", check_copy; "-l", check_link]
+  let fn = check_funs.[arg]
   let src = @"C:\a\?*\b\f?.p*"
   let dst = @"F:\Temp"
-  let fn = check_funs.[fkey]
-  Given (opts ["-c"; srcArg src; dstArg dst; "-F"])
+  Given (opts [arg; srcArg src; dstArg dst; "-F"])
   |> When validating
-  |> It should have (expected_type (fn src dst true PatternMode))
+  |> It should have (expected_type [fn src dst true PatternMode])
   |> Verify
 
-[<ScenarioTemplate("copy")>]
-[<ScenarioTemplate("link")>]
-let  ``Copy file - has expected type and paths`` (fkey) =
+[<ScenarioTemplate("--copyfile")>]
+[<ScenarioTemplate("--linkfile")>]
+let  ``Copy file - has expected type and paths`` (arg) =
+  let check_funs = Map.ofList ["--copyfile", check_copy; "--linkfile", check_link]
+  let fn = check_funs.[arg]
   let src = @"C:\a\b\f1.doc"
   let dst = @"C:\a\c\f2.txt"
-  let fn = check_funs.[fkey]
-  Given (opts ["--copyfile"; srcArg src; dstArg dst])
+  Given (opts [arg; srcArg src; dstArg dst])
   |> When validating
-  |> It should have (expected_type (fn src dst false FileMode))
+  |> It should have (expected_type [fn src dst false FileMode])
   |> Verify
 
-[<ScenarioTemplate("copy")>]
-[<ScenarioTemplate("link")>]
-let ``Copy dir - has expected type and paths`` (fkey) =
+[<ScenarioTemplate("-C")>]
+[<ScenarioTemplate("-L")>]
+let ``Copy dir - has expected type and paths`` (arg) =
+  let check_funs = Map.ofList ["-C", check_copy; "-L", check_link]
+  let fn = check_funs.[arg]
   let src = @"C:\a\b\"
   let dst = @"C:\a\c\"
-  let fn = check_funs.[fkey]
-  Given (opts ["-C"; srcArg src; dstArg dst])
+  Given (opts [arg; srcArg src; dstArg dst])
   |> When validating
-  |> It should have (expected_type (fn src dst false FolderMode))
+  |> It should have (expected_type [fn src dst false FolderMode])
   |> Verify
   
-//[<Scenario>]
-//let ``Move file - has expected job items`` () =
-//  let src = @"C:\a\b\f1.doc"
-//  let dst = @"C:\a\c\f2.txt"
-//  Given (opts ["-m", srcArg; dstArg; "-F"]) 
-//  |> When validating
-//  |> It should have 
-//  |> Verify  
+[<ScenarioTemplate("-m")>]
+[<ScenarioTemplate("-M")>]
+let ``Move file - has expected job items`` (arg) =
+  let modes = Map.ofList ["-m", FileMode; "-M", FolderMode]
+  let src = @"C:\a\b\f1"
+  let dst = @"C:\a\c\f2"
+  Given (opts [arg; srcArg src; dstArg dst; "-F"]) 
+  |> When validating
+  |> It should have (expected_type [ check_copy src dst true modes.[arg]
+                                     check_yank src modes.[arg] ])
+  |> Verify  
+
+// TODO: fix parsing to work with move
+//       when moving ensure that src is not 
+//       deleted if the copy did not succeed
