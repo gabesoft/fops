@@ -18,9 +18,11 @@ type OptionsValidator(log:Log) =
       |> String.concat ""
     let items = statusItems.ToArray()
     let maxl = 
-      items
-      |> Seq.map (fun (t, _, _) -> t.Length)
-      |> Seq.max
+      match items with
+      | [||]  -> 0
+      | _     -> items
+                  |> Seq.map (fun (t, _, _) -> t.Length)
+                  |> Seq.max
     items
     |> Seq.iter (fun (t, v, w) -> sprintf "- %s: %s" (pad maxl t) v |> w)
 

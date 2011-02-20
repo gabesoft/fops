@@ -176,9 +176,9 @@ let ``Copy dir should copy source as non-existing directory`` () =
 
 [<Scenario>]
 let ``Copy should copy all matched files to destination directory`` () =
-  let src = @"C:\a\b"
+  let src = @"C:\a\b\*\g\f?.p*"
+//  let src = @"C:\a\b"
   let dst = @"C:\e\f"
-  let pat = @"C:\a\b\*\g\f?.p*"
   let job = Item.copy PatternMode (src, dst, true, []) |> mkJob 
   let paths = [ @"C:\a\b\c\g\f1.pdf"
                 @"C:\a\b\c\f\g\f2.pdb"
