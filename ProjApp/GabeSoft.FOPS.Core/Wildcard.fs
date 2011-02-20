@@ -35,11 +35,11 @@ module Wildcard =
   let prepare input = 
     let sep = Path.separator.ToString() |> escape
     let pat1, repl1 = escape "*.*", "*"
-    let pat2 = sprintf "%s$" ("/*" |> normalize |> escape)
-    let repl2 = ("/>>" |> normalize)
-    let pat3 = sprintf "%s(%s)$"  ("/*" |> normalize |> escape) 
-                                  (sprintf "[^%s]*" sep)
-    let repl3 = ("/>>>$1" |> normalize)
+    let pat2, repl2 = sprintf "%s$" ("/*" |> normalize |> escape),
+                      ("/>>" |> normalize)
+    let pat3, repl3 = sprintf "%s(%s)$" ("/*" |> normalize |> escape) 
+                                        (sprintf "[^%s]*" sep),
+                      ("/>>>$1" |> normalize)
     let pat4, repl4 = 
         let pat = "/*" |> normalize
         sprintf "(%s)+" (escape pat), pat

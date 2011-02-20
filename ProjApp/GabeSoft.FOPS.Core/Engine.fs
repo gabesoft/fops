@@ -41,10 +41,13 @@ type Engine(server: IOServer, ?log:Log) =
                                   yinfo f.Path)
 
   let yankFolder src =
-    yankd src
     match server.Provider.FolderExists src with
-    | true  -> ydwarn src "DONE: some files could not be deleted"
-    | false -> ydinfo src
+    | true    ->
+        yankd src
+        match server.Provider.FolderExists src with
+        | true  -> ydwarn src "DONE: some files could not be deleted"
+        | false -> ydinfo src
+    | false   -> ydwarn src "SKIPPED: folder does not exist"
 
   let copyFile (copy, info, warn) (src, dst, force) =
     let exists = server.Provider.FileExists
