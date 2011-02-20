@@ -16,26 +16,31 @@ open System.Text.RegularExpressions
 module Wildcard =
   /// Escapes the regular expression characters
   /// in the specified input.
-  let private escape input = Regex.Escape (input)
-  let private normalize = Path.normalize    
+  let escape input = Regex.Escape (input)
+  let normalize = Path.normalize    
 
   /// <summary>
   /// Prepares the specified input for regex conversion.
   /// Performs the following replacements:
   ///   1. *.*          -> *
   ///   2. /*$          -> />>
-  ///   3. /*/*/*/../*  -> /*
+  ///   3. /*([^/]*)$   -> />>>$1
+  ///   4. /*/*/*/../*  -> /*
   /// <para>
   /// Preconditions: 
   /// <para> - the input is normalized   </para>
   /// <para> - the input is not escaped  </para>
   /// </para>
   /// </summary>
-  let private prepare input = 
+  let prepare input = 
+    let sep = Path.separator.ToString() |> escape
     let pat1, repl1 = escape "*.*", "*"
-    let pat2, repl2 =
-        sprintf "%s$" ("/*" |> normalize |> escape), ("/>>" |> normalize)
-    let pat3, repl3 = 
+    let pat2 = sprintf "%s$" ("/*" |> normalize |> escape)
+    let repl2 = ("/>>" |> normalize)
+    let pat3 = sprintf "%s(%s)$"  ("/*" |> normalize |> escape) 
+                                  (sprintf "[^%s]*" sep)
+    let repl3 = ("/>>>$1" |> normalize)
+    let pat4, repl4 = 
         let pat = "/*" |> normalize
         sprintf "(%s)+" (escape pat), pat
     let replace pat (repl:string) text = Regex.Replace(text, pat, repl)
@@ -45,6 +50,7 @@ module Wildcard =
     |> replace pat1 repl1 
     |> replace pat2 repl2         
     |> replace pat3 repl3
+    |> replace pat4 repl4
    
   /// <summary>
   /// Converts the specified input into a 
@@ -56,8 +62,9 @@ module Wildcard =
   /// <para> - the input has been prepared for conversion  </para>
   /// </para>
   /// </summary>
-  let private convert (input: string) =
+  let convert (input: string) =
     // the following replacements are performed in order
+    // \>>>  -> \\[^\\]*
     // \>>   -> \\[^\\]+
     // \*\   -> \\(.>><<\\)<<
     // \?*\  -> \\[^\\]+\\
@@ -66,16 +73,18 @@ module Wildcard =
     // >>    -> *
     // <<    -> ?
 
-    let separator = Path.separator.ToString() |> escape
+    let sep = Path.separator.ToString() |> escape
     (new StringBuilder(input))
+        .Replace("/>>>" |> normalize |> escape, 
+                sprintf "%s[^%s]*" sep sep)
         .Replace("/>>" |> normalize |> escape, 
-                sprintf "%s[^%s]+" separator separator)
+                sprintf "%s[^%s]+" sep sep)
         .Replace("/*/" |> normalize |> escape, 
-                sprintf "%s(<<:.>><<%s)<<" separator separator)
+                sprintf "%s(<<:.>><<%s)<<" sep sep)
         .Replace("/?*/" |> normalize |> escape, 
-                sprintf "%s[^%s]+%s" separator separator separator)
-        .Replace("*" |> escape, sprintf "[^%s]*" separator)
-        .Replace("?" |> escape, sprintf "[^%s]" separator)
+                sprintf "%s[^%s]+%s" sep sep sep)
+        .Replace("*" |> escape, sprintf "[^%s]*" sep)
+        .Replace("?" |> escape, sprintf "[^%s]" sep)
         .Replace(">>", "*")
         .Replace("<<", "?")
         .Insert(0, "^")

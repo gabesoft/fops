@@ -31,6 +31,7 @@ let values = [
    @"C:\a\?*\b\c.txt", @"^C:\\a\\[^\\]+\\b\\c\.txt$"
    @"C:\a\?*\*\b\c.txt", @"^C:\\a\\[^\\]+\\(?:.*?\\)?b\\c\.txt$" 
    @"C:\a\b\c\f.bat", @"^C:\\a\\b\\c\\f\.bat$"
+   @"C:\a\*\bin\*\*.dll", @"^C:\\a\\(?:.*?\\)?bin\\(?:.*?\\)?[^\\]*\.dll$"
    @"C:\a\*.*\*.*\*\c\*.*", @"^C:\\a\\(?:.*?\\)?c\\[^\\]+$" ]
 
 let converting_to (pattern, expected) =
@@ -61,6 +62,7 @@ let outcome (expected, actual) =
 [<ScenarioTemplate(16)>]
 [<ScenarioTemplate(17)>]
 [<ScenarioTemplate(18)>]
+[<ScenarioTemplate(19)>]
 let ``Converting a wildcard pattern yields proper regex`` (index) =
    Given values.[index]
    |> When converting_to

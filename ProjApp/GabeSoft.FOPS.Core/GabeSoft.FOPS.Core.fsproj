@@ -45,8 +45,8 @@
     <Compile Include="Job.fs" />
     <Compile Include="JobsParser.fs" />
     <Compile Include="OptionsValidator.fs" />
-    <Compile Include="Wildcard.fs" />
     <Compile Include="Filter.fs" />
+    <Compile Include="Wildcard.fs" />
     <Compile Include="Engine.fs" />
   </ItemGroup>
   <ItemGroup>
