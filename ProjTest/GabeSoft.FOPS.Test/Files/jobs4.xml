@@ -8,7 +8,7 @@
     <link src="Dir1\*\cache\?*\f*.pd?" dst="C:\Dest" >
       <exclude src="Dir1\*\cache\a\f*.pdb" />
     </link>
-    <yank src="C:\Temp\*\obj\*.*" />
+    <delete src="C:\Temp\*\obj\*.*" />
   </job>
   <job id="j2">
     <copy src="Code\Proj\*\*.*" dst="Output">

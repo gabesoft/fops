@@ -72,12 +72,17 @@ type Engine(server: IOServer, ?log:Log) =
 
   let copyFolder (copy, info, warn) (src, dst, force, excludes) =
     let excludes = excludes |> List.map Wildcard.toRegex    
+    let dstExists = server.Provider.FolderExists dst
     let spec = {
       Pattern = (Wildcard.matchAll src)
       Exclude = (Wildcard.matchAll dst) :: excludes
       Recursive = true }
     let node = server.Node src |> Filter.apply spec
-    let fdst path = Path.combine dst (Path.part src path)
+    let fdst = 
+      let dst = match dstExists with 
+                | true -> Path.combine dst (Path.file src) 
+                | false -> dst
+      fun path -> Path.combine dst (Path.part src path)
     copyDeep (copy, info, warn) (fdst, force) node
 
   let copyPattern (copy, info, warn) (src, dst, force, excludes) =

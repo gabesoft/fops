@@ -154,7 +154,7 @@ let ``Copy dir should copy source inside existing directory`` () =
   let job = Item.copy FolderMode (src, dst, true, []) |> mkJob
   let paths = [ @"C:\a\b\f1.txt"
                 @"C:\a\b\c\f2.txt"
-                @"C:\e\f" ]
+                @"C:\e\f\" ]
   Given (mkServer paths, job)
   |> When running_job
   |> Called <@fun x -> x.Copy@>(paths.[0], @"C:\e\f\b\f1.txt")

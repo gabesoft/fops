@@ -125,6 +125,21 @@ let expected_full_paths jobs =
   printMethod (ok)
   List.forall id ok
 
+let expected_order jobs = 
+  let job = get_job_with_id "j4" jobs
+  let actual = job.Items |> List.map (function 
+    | Copy (_, _, _, _, m)  -> "copy", m
+    | Link (_, _, _, _, m)  -> "link", m
+    | Yank (_, m)           -> "yank", m)
+  let expected = [
+    "yank", PatternMode; "yank", PatternMode; "yank", FolderMode;
+    "copy", FileMode; "copy", FolderMode; "copy", PatternMode;
+    "link", PatternMode;
+    "copy", FileMode; "yank", FileMode;
+    "copy", FolderMode; "yank", FolderMode]
+  printMethod (expected.Length, actual.Length)
+  expected = actual
+
 [<Scenario>]
 let ``Can find the jobs files`` () =
    Given paths
@@ -200,3 +215,10 @@ let ``Job id is a required attribute`` () =
    Given file3
    |> When parsing
    |> Verify
+
+[<Scenario>]
+let ``Can populate the items in order`` () =
+  Given file5
+  |> When parsing
+  |> It should have expected_order
+  |> Verify

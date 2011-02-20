@@ -14,6 +14,10 @@
 <!-- fops -cf -src=C:\source\b\f2.pdf -dst=C:dest\f3.pdf -->
 <!-- fops -l -src=C:\a\b\?*\* -dst=C:\e\f -->
 
+<!-- copy/move behavior: -->
+<!-- if dst exists copy the source inside destination -->
+<!-- otherwise copy the source as the destination -->
+
 <!-- TODO: add force (delete read-only) & recursive to delete ?-->
 <!-- <delete-dir src="a\b" force="true" recursive="true"/>-->
 
@@ -23,8 +27,6 @@
     <delete src="a\b\c\f1.pdb" />
     <delete-dir src="a\b" />
     <copy-file src="b\f2.pdf" dst="c\f3.pdf" />
-    <!-- if dst exists copy the source inside destination -->
-    <!-- otherwise copy the source as the destination -->
     <copy-dir src="b\e\" dst="\">
       <exclude src="*\*.tmp" />
       <exclude src="*\bin\*.pdb" />
