@@ -68,9 +68,9 @@ type OptionsValidator(log:Log) =
         if not (empty opts.BaseDst) then info "BASE DESTINATION" opts.BaseDst
         jobs
 
-  let ofYank actionMessage failMessage mode (opts:Options) =
+  let ofYank actionMessage failMessage info mode (opts:Options) =
     action [actionMessage]
-    ipatt opts.Src
+    info opts.Src
     match empty opts.Src with
     | true  ->  fail failMessage
                 []
@@ -79,12 +79,12 @@ type OptionsValidator(log:Log) =
   let ofYankPatt (opts:Options) = 
     ofYank  "delete all files matching PATTERN"
             "no PATTERN specified"
-            PatternMode opts
+            ipatt PatternMode opts
 
   let ofYankDir (opts:Options) =
     ofYank  "delete directory at PATH"
             "no PATH specified" 
-            FolderMode opts
+            ipath FolderMode opts
 
   let ofCopyPatt f desc (opts:Options) = 
     action [desc; "all files matching PATTERN to DESTINATION"]
