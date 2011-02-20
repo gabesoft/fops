@@ -29,7 +29,7 @@ type OptionsValidator(log:Log) =
   let empty (s:string) = String.IsNullOrEmpty(s) 
   let action texts = status log.Info "ACTION" (String.concat " " texts)
   let info = status log.Info
-  let fail = status log.Fail
+  let fail = status log.Fail "ERROR"
 
   let iover v = info "OVERWRITE" (string v)
   let ipath = info "PATH"
@@ -48,7 +48,7 @@ type OptionsValidator(log:Log) =
     action ["run job(s) in file"]
     info "FILE" path
     match provider.FileExists(path) with
-    | false ->  fail "ERROR" "file not found on disk"
+    | false ->  fail "file not found on disk"
                 []
     | true  ->  
         let runAll = empty opts.JobId
@@ -71,12 +71,18 @@ type OptionsValidator(log:Log) =
   let ofYank (opts:Options) = 
     action ["delete all files matching PATTERN"]
     ipatt opts.Src
-    mkJobs [Yank (opts.Src, PatternMode)]
+    match empty opts.Src with
+    | true  ->  fail "no source pattern specified"
+                []
+    | false ->  mkJobs [Yank (opts.Src, PatternMode)]
 
   let ofYankDir (opts:Options) =
     action ["delete directory at PATH"]
     ipath opts.Src
-    mkJobs [Yank (opts.Src, FolderMode)]
+    match empty opts.Src with
+    | true  ->  fail "no source path specified"
+                []
+    | false ->  mkJobs [Yank (opts.Src, FolderMode)]
 
   let ofCopyPatt f desc (opts:Options) = 
     action [desc; "all files matching PATTERN to DESTINATION"]
@@ -119,7 +125,7 @@ type OptionsValidator(log:Log) =
     let action = actions |> List.tryFind (fun (a, _) -> a)
     let jobs = match action with
                 | Some (a, f)   ->  f opts
-                | None          ->  fail "ERROR" "no action detected"
+                | None          ->  fail "no action detected"
                                     []
     printStatus()
     jobs
