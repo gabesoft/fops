@@ -66,7 +66,7 @@
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="NaturalSpec">
-      <HintPath>C:\Research\github\fops\Dependencies\NaturalSpec.0.7.1\NaturalSpec.dll</HintPath>
+      <HintPath>..\..\Dependencies\NaturalSpec.0.7.1\NaturalSpec.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\Dependencies\NUnit.2.5.9\nunit.framework.dll</HintPath>

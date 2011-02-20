@@ -28,16 +28,14 @@ type Engine(server: IOServer, ?log:Log) =
   let ydinfo src = sprintf "delete-dir: %s (DONE)" src |> info
   let ydwarn src reason = sprintf "delete-dir: %s (%s)" src reason |> warn
 
+  let getNode path spec = path |> server.Node |> Filter.apply spec
+
   let yankPattern src = 
     let spec = {
       Pattern = Wildcard.toRegex src
       Exclude = []
       Recursive = Wildcard.isRecursive src }
-    let node = 
-      src 
-      |> Wildcard.root 
-      |> server.Node
-      |> Filter.apply spec
+    let node = getNode (Wildcard.root src) spec
     node.AllFiles |> Seq.iter (fun f -> 
                                   yank f.Path
                                   yinfo f.Path)
@@ -77,7 +75,7 @@ type Engine(server: IOServer, ?log:Log) =
       Pattern = (Wildcard.matchAll src)
       Exclude = (Wildcard.matchAll dst) :: excludes
       Recursive = true }
-    let node = server.Node src |> Filter.apply spec
+    let node = getNode src spec
     let fdst = 
       let dst = match dstExists with 
                 | true -> Path.combine dst (Path.file src) 
@@ -91,7 +89,7 @@ type Engine(server: IOServer, ?log:Log) =
       Pattern = (Wildcard.toRegex src)
       Exclude = (Wildcard.matchAll dst) :: excludes
       Recursive = Wildcard.isRecursive src }
-    let node = src |> Wildcard.root |> server.Node
+    let node = getNode (Wildcard.root src) spec
     let fdst path = Path.combine dst (Path.file path)
     node.AllFiles |> Seq.iter (copyDeep (copy, info, warn) (fdst, force))
 

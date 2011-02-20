@@ -47,6 +47,18 @@
   <ItemGroup>
     <Compile Include="Program.fs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GabeSoft.FOPS.Cmd\GabeSoft.FOPS.Cmd.csproj">
+      <Name>GabeSoft.FOPS.Cmd</Name>
+      <Project>{f7306ef5-c071-4c6f-b2c4-744c772c9a0e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\GabeSoft.FOPS.Core\GabeSoft.FOPS.Core.fsproj">
+      <Name>GabeSoft.FOPS.Core</Name>
+      <Project>{4dd44e2a-d6fb-4cc9-9bb4-d9f3b027a742}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
