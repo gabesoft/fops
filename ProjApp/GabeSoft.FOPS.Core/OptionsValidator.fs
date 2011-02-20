@@ -45,10 +45,10 @@ type OptionsValidator(log:Log) =
   let ofFile (opts:Options) = 
     let path = Path.full opts.File
     let provider = new IOProviderImpl() :> IOProvider
-    action ["run job(s) in file"]
+    action ["run job(s) in FILE"]
     info "FILE" path
     match provider.FileExists(path) with
-    | false ->  fail "file not found on disk"
+    | false ->  fail "FILE not found on disk"
                 []
     | true  ->  
         let runAll = empty opts.JobId
@@ -67,22 +67,24 @@ type OptionsValidator(log:Log) =
         if not (empty opts.BaseSrc) then info "BASE SOURCE" opts.BaseSrc
         if not (empty opts.BaseDst) then info "BASE DESTINATION" opts.BaseDst
         jobs
-    
-  let ofYank (opts:Options) = 
-    action ["delete all files matching PATTERN"]
+
+  let ofYank actionMessage failMessage mode (opts:Options) =
+    action [actionMessage]
     ipatt opts.Src
     match empty opts.Src with
-    | true  ->  fail "no source pattern specified"
+    | true  ->  fail failMessage
                 []
-    | false ->  mkJobs [Yank (opts.Src, PatternMode)]
+    | false ->  mkJobs [Yank (opts.Src, mode)]
+    
+  let ofYankPatt (opts:Options) = 
+    ofYank  "delete all files matching PATTERN"
+            "no PATTERN specified"
+            PatternMode opts
 
   let ofYankDir (opts:Options) =
-    action ["delete directory at PATH"]
-    ipath opts.Src
-    match empty opts.Src with
-    | true  ->  fail "no source path specified"
-                []
-    | false ->  mkJobs [Yank (opts.Src, FolderMode)]
+    ofYank  "delete directory at PATH"
+            "no PATH specified" 
+            FolderMode opts
 
   let ofCopyPatt f desc (opts:Options) = 
     action [desc; "all files matching PATTERN to DESTINATION"]
@@ -120,7 +122,7 @@ type OptionsValidator(log:Log) =
       opts.LinkFile, ofCopy Link "link file" FileMode
       opts.MoveDir, ofMove "directory" FolderMode
       opts.MoveFile, ofMove "file" FileMode
-      opts.Yank, ofYank
+      opts.Yank, ofYankPatt
       opts.YankDir, ofYankDir ]
     let action = actions |> List.tryFind (fun (a, _) -> a)
     let jobs = match action with
