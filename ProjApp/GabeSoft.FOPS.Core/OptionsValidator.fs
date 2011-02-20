@@ -120,6 +120,6 @@ type OptionsValidator(log:Log) =
     let jobs = match action with
                 | Some (a, f)   ->  f opts
                 | None          ->  fail "ERROR" "no action detected"
-                                    Unchecked.defaultof<_>
+                                    []
     printStatus()
     jobs
