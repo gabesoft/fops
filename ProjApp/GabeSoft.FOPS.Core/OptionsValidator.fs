@@ -100,13 +100,13 @@ type OptionsValidator(log:Log) =
     iover opts.Force
     mkJobs [f (opts.Src, opts.Dst, opts.Force, [], mode)]
 
-  let ofMove desc mode (opts:Options) =
+  let ofMove desc copyMode yankMode (opts:Options) =
     action ["move"; desc; "from PATH to DESTINATION"]
     ipath opts.Src
     idest opts.Dst
     iover opts.Force
-    mkJobs [  Copy (opts.Src, opts.Dst, opts.Force, [], mode)
-              Yank (opts.Src, mode) ]
+    mkJobs [  Copy (opts.Src, opts.Dst, opts.Force, [], copyMode)
+              Yank (opts.Src, yankMode) ]
 
   /// Creates a list of jobs that match the 
   /// specified options.
@@ -120,8 +120,8 @@ type OptionsValidator(log:Log) =
       opts.Link, ofCopyPatt Link "link"
       opts.LinkDir, ofCopy Link "link directory" FolderMode
       opts.LinkFile, ofCopy Link "link file" FileMode
-      opts.MoveDir, ofMove "directory" FolderMode
-      opts.MoveFile, ofMove "file" FileMode
+      opts.MoveDir, ofMove "directory" FolderMode FolderMode
+      opts.MoveFile, ofMove "file" FileMode PatternMode
       opts.Yank, ofYankPatt
       opts.YankDir, ofYankDir ]
     let action = actions |> List.tryFind (fun (a, _) -> a)

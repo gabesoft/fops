@@ -132,13 +132,14 @@ let ``Copy dir - has expected type and paths`` (arg) =
 [<ScenarioTemplate("-m")>]
 [<ScenarioTemplate("-M")>]
 let ``Move file - has expected job items`` (arg) =
-  let modes = Map.ofList ["-m", FileMode; "-M", FolderMode]
+  let cmodes = Map.ofList ["-m", FileMode; "-M", FolderMode]
+  let ymodes = Map.ofList ["-m", PatternMode; "-M", FolderMode]
   let src = @"C:\a\b\f1"
   let dst = @"C:\a\c\f2"
   Given (opts [arg; srcArg src; dstArg dst; "-F"]) 
   |> When validating
-  |> It should have (expected_type [ check_copy src dst true modes.[arg]
-                                     check_yank src modes.[arg] ])
+  |> It should have (expected_type [ check_copy src dst true cmodes.[arg]
+                                     check_yank src ymodes.[arg] ])
   |> Verify  
 
 // TODO: fix parsing to work with move
