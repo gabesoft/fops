@@ -5,41 +5,41 @@ open SofGem.DSBK.Core
 open SofGem.DSBK.IO
 open SofGem.DSBK.Domain
 
-type IONodeType = FileNode | FolderNode | UnknownNode
+type IONodeType = FileNode | DirectoryNode | UnknownNode
 type IONode = 
     {   Path: string
         Type: IONodeType
         Files: seq<IONode>
-        Folders: seq<IONode> }
+        Directories: seq<IONode> }
     static member Make path nodeType = { 
         Path = path 
         Type = nodeType 
         Files = Seq.empty<_>
-        Folders = Seq.empty<_>
+        Directories = Seq.empty<_>
     }
     static member File path = IONode.Make path IONodeType.FileNode
-    static member Folder path = IONode.Make path IONodeType.FolderNode
+    static member Directory path = IONode.Make path IONodeType.DirectoryNode
     member x.AllFiles = seq {
         yield! x.Files
-        yield! x.Folders |> Seq.map (fun f -> f.AllFiles) |> Seq.concat
+        yield! x.Directories |> Seq.map (fun f -> f.AllFiles) |> Seq.concat
     }
-    member x.AllFolders = seq {
-        yield! x.Folders
-        yield! x.Folders |> Seq.map (fun f -> f.AllFolders) |> Seq.concat
+    member x.AllDirectories = seq {
+        yield! x.Directories
+        yield! x.Directories |> Seq.map (fun f -> f.AllDirectories) |> Seq.concat
     }
         
 type IOProviderImpl () = 
     interface IOProvider with
         member x.FileExists path = FileW.Exists(path)
-        member x.FolderExists path = DirectoryW.Exists(path)
+        member x.DirectoryExists path = DirectoryW.Exists(path)
         member x.GetFiles path = DirectoryW.GetFiles(path)
-        member x.GetFolders path = DirectoryW.GetDirectories(path)
+        member x.GetDirectories path = DirectoryW.GetDirectories(path)
         member x.DeleteFile path = DeleteHelper.DeleteFile(path)
-        member x.DeleteFolder (path, deep) = 
+        member x.DeleteDirectory (path, deep) = 
           match deep with
           | true -> DeleteHelper.DeleteDirectoryRecursive(path, true)
           | false -> DeleteHelper.DeleteDirectory(path, false)
-        member x.CreateFolder path = 
+        member x.CreateDirectory path = 
           DirectoryW.CreateDirectory(path) |> ignore
         member x.Link (source, destination) = 
           FileCopier.CreateHardLink(source, destination)
@@ -57,27 +57,27 @@ type IOServer(?ioProvider) =
                 yield IONode.File file
         }
 
-    let rec folders path =
+    let rec dirs path =
         seq {
-            for folder in provider.GetFolders path do
-                let node = IONode.Folder folder
+            for dir in provider.GetDirectories path do
+                let node = IONode.Directory dir
                 yield { 
                 node with 
-                    Files = files folder
-                    Folders = folders folder }
+                    Files = files dir
+                    Directories = dirs dir }
     } 
 
     let node path = 
         if provider.FileExists path then 
             IONode.File path
-        else if provider.FolderExists path then 
-            { IONode.Folder path with
+        else if provider.DirectoryExists path then 
+            { IONode.Directory path with
                 Files = files path
-                Folders = folders path }
+                Directories = dirs path }
         else
             IONode.Make path IONodeType.UnknownNode
 
     member x.Node = node
     member x.Files = files
-    member x.Folders = folders
+    member x.Directories = dirs
     member x.Provider = provider

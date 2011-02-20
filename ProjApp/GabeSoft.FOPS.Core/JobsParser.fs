@@ -72,16 +72,16 @@ module JobsParser =
     match lname elem with
     | "copy"        -> [ parseCopy (Item.copy PatternMode) elem ]
     | "copy-file"   -> [ parseCopy (Item.copy FileMode) elem ]
-    | "copy-dir"    -> [ parseCopy (Item.copy FolderMode) elem ]
+    | "copy-dir"    -> [ parseCopy (Item.copy DirectoryMode) elem ]
     | "link"        -> [ parseCopy (Item.link PatternMode) elem ]
     | "link-file"   -> [ parseCopy (Item.link FileMode) elem ]
-    | "link-dir"    -> [ parseCopy (Item.link FolderMode) elem ]
+    | "link-dir"    -> [ parseCopy (Item.link DirectoryMode) elem ]
     | "delete"      -> [ parseYank (Item.yank PatternMode) elem ]
-    | "delete-dir"  -> [ parseYank (Item.yank FolderMode) elem ]
+    | "delete-dir"  -> [ parseYank (Item.yank DirectoryMode) elem ]
     | "move-file"   -> [ parseCopy (Item.copy FileMode) elem
                          parseYank (Item.yank FileMode) elem ]
-    | "move-dir"    -> [ parseCopy (Item.copy FolderMode) elem
-                         parseYank (Item.yank FolderMode) elem ]
+    | "move-dir"    -> [ parseCopy (Item.copy DirectoryMode) elem
+                         parseYank (Item.yank DirectoryMode) elem ]
     | n             -> fail (sprintf "unknown element %s" n)
 
   let parseJob (elem: XElement) =

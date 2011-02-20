@@ -45,11 +45,11 @@ type TestIOProvider (paths:string list) =
 
   interface IOProvider with
     member x.FileExists path = path |> clean |> hasFile
-    member x.FolderExists path = path |> clean |> hasFolder 
+    member x.DirectoryExists path = path |> clean |> hasFolder 
     member x.GetFiles path = path |> clean |> files 
-    member x.GetFolders path = path |> clean |> folders 
+    member x.GetDirectories path = path |> clean |> folders 
     member x.DeleteFile path = addDeleted path
-    member x.DeleteFolder (path, deep) = addDeleted path
-    member x.CreateFolder path = addFolder path
+    member x.DeleteDirectory (path, deep) = addDeleted path
+    member x.CreateDirectory path = addFolder path
     member x.Link (source, destination) = failwith "not implemented"
     member x.Copy (source, destination) = failwith "not implemented"

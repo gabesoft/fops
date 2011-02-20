@@ -5,8 +5,8 @@ open System
 type ItemType = 
    /// copy/delete a single file
    | FileMode 
-   /// copy/delete all contents of a folder recursively
-   | FolderMode 
+   /// copy/delete all contents of a directory recursively
+   | DirectoryMode 
    /// copy/delete a list of files that match a wildcard pattern
    | PatternMode
 

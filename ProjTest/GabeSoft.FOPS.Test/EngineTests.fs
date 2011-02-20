@@ -36,10 +36,10 @@ let mkServer paths =
   let mockProvider = 
     mock<IOProvider> "fake"
     |> setup<@fun x -> x.GetFiles@> providerImpl.GetFiles
-    |> setup<@fun x -> x.GetFolders@> providerImpl.GetFolders
+    |> setup<@fun x -> x.GetDirectories@> providerImpl.GetDirectories
     |> setup<@fun x -> x.FileExists@> providerImpl.FileExists
-    |> setup<@fun x -> x.FolderExists@> providerImpl.FolderExists
-    |> setup<@fun x -> x.CreateFolder@> (fun x -> sprintf "\tCreateFolder %A" x |> writeln)
+    |> setup<@fun x -> x.DirectoryExists@> providerImpl.DirectoryExists
+    |> setup<@fun x -> x.CreateDirectory@> (fun x -> sprintf "\tCreateFolder %A" x |> writeln)
     |> setup<@fun x -> x.DeleteFile@> (fun x -> sprintf "\tDeleteFile %A" x |> writeln)
     |> setup<@fun x -> x.Copy@> (fun x -> sprintf "\tCopy %A" x |> writeln)
     |> setup<@fun x -> x.Link@> (fun x -> sprintf "\tLink %A" x |> writeln)
@@ -94,7 +94,7 @@ let ``Yank should not delete unselected files`` () =
 [<Scenario>]
 let ``Yank folder should delete entire folder`` () =
   let src = @"C:\a\b"
-  let job = src |> Item.yank FolderMode |> mkJob
+  let job = src |> Item.yank DirectoryMode |> mkJob
   let paths = [   @"C:\a\c\f1.doc"
                   @"C:\a\d\f\f1.doc"
                   @"C:\a\b\f1.doc"
@@ -123,7 +123,7 @@ let ``Copy file should use correct paths`` () =
   let dst = @"C:\e\f\g\f2.doc"
   let job = Item.copy FileMode (src, dst, true, []) |> mkJob
 
-  Given (mkServer [], job)
+  Given (mkServer [@"C:\a\b\f1.txt"], job)
   |> When running_job
   |> Called <@fun x -> x.Copy@> (src, dst)
   |> Verify
@@ -134,7 +134,7 @@ let ``Copy dir should create directory structure`` () =
   let dst = @"C:\e\f"
   let srcPath path = Path.combine src path
   let dstPath path = Path.combine dst path
-  let job = Item.copy FolderMode (src, dst, true, []) |> mkJob
+  let job = Item.copy DirectoryMode (src, dst, true, []) |> mkJob
   let paths = [ @"f1.txt"
                 @"c\f2.txt"
                 @"d\f3.txt"
@@ -151,7 +151,7 @@ let ``Copy dir should create directory structure`` () =
 let ``Copy dir should copy source inside existing directory`` () =
   let src = @"C:\a\b"
   let dst = @"C:\e\f"
-  let job = Item.copy FolderMode (src, dst, true, []) |> mkJob
+  let job = Item.copy DirectoryMode (src, dst, true, []) |> mkJob
   let paths = [ @"C:\a\b\f1.txt"
                 @"C:\a\b\c\f2.txt"
                 @"C:\e\f\" ]
@@ -165,7 +165,7 @@ let ``Copy dir should copy source inside existing directory`` () =
 let ``Copy dir should copy source as non-existing directory`` () =
   let src = @"C:\a\b"
   let dst = @"C:\e\f"
-  let job = Item.copy FolderMode (src, dst, true, []) |> mkJob
+  let job = Item.copy DirectoryMode (src, dst, true, []) |> mkJob
   let paths = [ @"C:\a\b\f1.txt"
                 @"C:\a\b\c\f2.txt" ]
   Given (mkServer paths, job)

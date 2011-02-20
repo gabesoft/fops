@@ -90,7 +90,7 @@ let ``Delete dir - has expected type and source`` () =
   let src = @"C:\a\b"
   Given (opts ["-D"; srcArg src])
   |> When validating
-  |> It should have (expected_type [check_yank src FolderMode])
+  |> It should have (expected_type [check_yank src DirectoryMode])
   |> Verify
 
 [<ScenarioTemplate("-c")>]
@@ -126,14 +126,14 @@ let ``Copy dir - has expected type and paths`` (arg) =
   let dst = @"C:\a\c\"
   Given (opts [arg; srcArg src; dstArg dst])
   |> When validating
-  |> It should have (expected_type [fn src dst false FolderMode])
+  |> It should have (expected_type [fn src dst false DirectoryMode])
   |> Verify
   
 [<ScenarioTemplate("-m")>]
 [<ScenarioTemplate("-M")>]
 let ``Move file - has expected job items`` (arg) =
-  let cmodes = Map.ofList ["-m", FileMode; "-M", FolderMode]
-  let ymodes = Map.ofList ["-m", PatternMode; "-M", FolderMode]
+  let cmodes = Map.ofList ["-m", FileMode; "-M", DirectoryMode]
+  let ymodes = Map.ofList ["-m", PatternMode; "-M", DirectoryMode]
   let src = @"C:\a\b\f1"
   let dst = @"C:\a\c\f2"
   Given (opts [arg; srcArg src; dstArg dst; "-F"]) 

@@ -25,7 +25,7 @@ type IOProvider =
   /// <returns>
   /// true if path refers to an existing directory; otherwise, false.
   /// </returns>
-  abstract member FolderExists : string -> bool
+  abstract member DirectoryExists : string -> bool
 
   /// <summary>
   /// Returns the names of files in the specified directory.
@@ -80,7 +80,7 @@ type IOProvider =
   /// <exception cref="System.IO.DirectoryNotFoundException">
   /// The specified path is invalid (for example, it is on an unmapped drive).
   /// </exception>
-  abstract member GetFolders : string -> string []
+  abstract member GetDirectories : string -> string []
 
   /// <summary>
   /// Deletes the specified file (even if the file is read-only).
@@ -133,7 +133,7 @@ type IOProvider =
   /// <exception cref="System.IO.DirectoryNotFoundException">
   /// The specified path is invalid (for example, it is on an unmapped drive).
   /// </exception>   
-  abstract member DeleteFolder : string * bool -> unit
+  abstract member DeleteDirectory : string * bool -> unit
 
   /// <summary>
   /// Creates all directories and subdirectories as specified by path.
@@ -161,7 +161,7 @@ type IOProvider =
   /// <exception cref="System.IO.DirectoryNotFoundException">
   /// The specified path is invalid (for example, it is on an unmapped drive).
   /// </exception>
-  abstract member CreateFolder : string -> unit
+  abstract member CreateDirectory : string -> unit
 
   /// <summary>
   /// Creates a hard link for the specified source file to the specified destination.

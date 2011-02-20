@@ -84,7 +84,7 @@ type OptionsValidator(log:Log) =
   let ofYankDir (opts:Options) =
     ofYank  "delete directory at PATH"
             "no PATH specified" 
-            ipath FolderMode opts
+            ipath DirectoryMode opts
 
   let ofCopyPatt f desc (opts:Options) = 
     action [desc; "all files matching PATTERN to DESTINATION"]
@@ -115,12 +115,12 @@ type OptionsValidator(log:Log) =
       opts.Help, usage
       not (empty opts.File), ofFile
       opts.Copy, ofCopyPatt Copy "copy"
-      opts.CopyDir, ofCopy Copy "copy directory" FolderMode
+      opts.CopyDir, ofCopy Copy "copy directory" DirectoryMode
       opts.CopyFile, ofCopy Copy "copy file" FileMode
       opts.Link, ofCopyPatt Link "link"
-      opts.LinkDir, ofCopy Link "link directory" FolderMode
+      opts.LinkDir, ofCopy Link "link directory" DirectoryMode
       opts.LinkFile, ofCopy Link "link file" FileMode
-      opts.MoveDir, ofMove "directory" FolderMode FolderMode
+      opts.MoveDir, ofMove "directory" DirectoryMode DirectoryMode
       opts.MoveFile, ofMove "file" FileMode PatternMode
       opts.Yank, ofYankPatt
       opts.YankDir, ofYankDir ]

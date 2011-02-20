@@ -118,8 +118,8 @@ module Wildcard =
     root pattern <> Path.directory pattern 
 
   /// Returns a regular expression that matches all the files
-  /// in all directories in the specified folder.
-  let matchAll folder = 
+  /// in all directories in the specified parent directory.
+  let matchAll directory = 
     let clean (s: string) = s.TrimEnd([|'/'; '\\'|])
-    let pattern = sprintf "%s/*/*" (folder |> clean) 
+    let pattern = sprintf "%s/*/*" (directory |> clean) 
     toRegex pattern

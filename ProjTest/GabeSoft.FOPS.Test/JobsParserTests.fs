@@ -83,7 +83,7 @@ let expected_item_types jobs =
                      | Link (_, _, _, e, c) -> c, e.Length
                      | Yank (_, c)          -> c, 0)
                   |> List.sort
-   let expected = [FileMode, 0; PatternMode, 2; FolderMode, 3] |> List.sort
+   let expected = [FileMode, 0; PatternMode, 2; DirectoryMode, 3] |> List.sort
 
    printMethod (expected, actual)
    expected = actual
@@ -99,7 +99,7 @@ let expected_src_paths jobs =
    let expected = [ 
       @"C:\Source\f1.txt", FileMode
       @"C:\Source\*\cache\*.doc", PatternMode
-      @"C:\Source\a\b", FolderMode ] |> List.sort
+      @"C:\Source\a\b", DirectoryMode ] |> List.sort
 
    printMethod (expected, actual)
    expected = actual
@@ -132,11 +132,11 @@ let expected_order jobs =
     | Link (_, _, _, _, m)  -> "link", m
     | Yank (_, m)           -> "yank", m)
   let expected = [
-    "yank", PatternMode; "yank", PatternMode; "yank", FolderMode;
-    "copy", FileMode; "copy", FolderMode; "copy", PatternMode;
+    "yank", PatternMode; "yank", PatternMode; "yank", DirectoryMode;
+    "copy", FileMode; "copy", DirectoryMode; "copy", PatternMode;
     "link", PatternMode;
     "copy", FileMode; "yank", FileMode;
-    "copy", FolderMode; "yank", FolderMode]
+    "copy", DirectoryMode; "yank", DirectoryMode]
   printMethod (expected.Length, actual.Length)
   expected = actual
 

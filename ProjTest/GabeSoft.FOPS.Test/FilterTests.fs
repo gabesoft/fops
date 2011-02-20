@@ -74,8 +74,8 @@ let applying_file_filter (path, data) =
     Wildcard.isRecursive path, create_node_and_filter path [] data
 
 let no_folders_if_recursive (isRecursive, node:IONode) =
-    printMethod (isRecursive, node.Folders |> Seq.length)
-    let noFolders = (0 = (node.Folders |> Seq.length))
+    printMethod (isRecursive, node.Directories |> Seq.length)
+    let noFolders = (0 = (node.Directories |> Seq.length))
     not isRecursive = noFolders
 
 let allowed_matches (expected: string list, actual: string list) =

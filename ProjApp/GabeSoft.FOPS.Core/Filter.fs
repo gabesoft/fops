@@ -40,8 +40,8 @@ module Filter =
          Files = node.Files 
                   |> Seq.filter (fun n -> allow spec.Pattern spec.Exclude n.Path)
                   |> Seq.cache
-         Folders = match spec.Recursive with
-                     | false  -> Seq.empty<_>
-                     | true   -> node.Folders 
-                                 |> Seq.map (apply spec) 
-                                 |> Seq.cache }
+         Directories = match spec.Recursive with
+                       | false  -> Seq.empty<_>
+                       | true   -> node.Directories 
+                                   |> Seq.map (apply spec) 
+                                   |> Seq.cache }

@@ -17,7 +17,7 @@ type Engine(server: IOServer, ?log:Log) =
   let copy src dst = server.Provider.Copy (src, dst)
   let link src dst = server.Provider.Link (src, dst)
   let yank src = server.Provider.DeleteFile src
-  let yankd src = server.Provider.DeleteFolder (src, true)
+  let yankd src = server.Provider.DeleteDirectory (src, true)
 
   let cinfo src dst = sprintf "copy: %s -> %s (DONE)" src dst |> info
   let cwarn src dst reason = sprintf "copy: %s -> %s (%s)" src dst reason |> warn
@@ -40,8 +40,8 @@ type Engine(server: IOServer, ?log:Log) =
                                   yank f.Path
                                   yinfo f.Path)
 
-  let yankFolder src =
-    let exists = server.Provider.FolderExists
+  let yankDir src =
+    let exists = server.Provider.DirectoryExists
     match exists src with
     | false   -> ydwarn src "SKIPPED: folder does not exist"
     | true    ->
@@ -52,7 +52,7 @@ type Engine(server: IOServer, ?log:Log) =
 
   let copyFile (copy, info, warn) (src, dst, force) =
     let exists = server.Provider.FileExists
-    let mkdir = server.Provider.CreateFolder
+    let mkdir = server.Provider.CreateDirectory
     match exists src with
     | false -> warn src dst "SKIPPED: source file does not exist"
     | true  ->
@@ -69,15 +69,15 @@ type Engine(server: IOServer, ?log:Log) =
     let dst = fdst src
     match node.Type with
     | FileNode      -> copyFile (copy, info, warn) (src, dst, force)
-    | FolderNode    -> 
+    | DirectoryNode    -> 
       node.Files 
-      |> Seq.append node.Folders
+      |> Seq.append node.Directories
       |> Seq.iter (copyDeep (copy, info, warn) (fdst, force))
     | _             -> fail "unknown node type"
 
-  let copyFolder (copy, info, warn) (src, dst, force, excludes) =
+  let copyDir (copy, info, warn) (src, dst, force, excludes) =
     let excludes = excludes |> List.map Wildcard.toRegex    
-    let dstExists = server.Provider.FolderExists dst
+    let dstExists = server.Provider.DirectoryExists dst
     let spec = {
       Pattern = (Wildcard.matchAll src)
       Exclude = (Wildcard.matchAll dst) :: excludes
@@ -104,17 +104,17 @@ type Engine(server: IOServer, ?log:Log) =
   | Copy (f, t, o, e, c)  -> 
     match c with
     | FileMode    -> copyFile (copy, cinfo, cwarn) (f, t, o)
-    | FolderMode  -> copyFolder (copy, cinfo, cwarn) (f, t, o, e)
+    | DirectoryMode  -> copyDir (copy, cinfo, cwarn) (f, t, o, e)
     | PatternMode -> copyPattern (copy, cinfo, cwarn) (f, t, o, e)
   | Link (f, t, o, e, c)  ->
     match c with
     | FileMode    -> copyFile (link, linfo, lwarn) (f, t, o)
-    | FolderMode  -> copyFolder (link, linfo, lwarn) (f, t, o, e)
+    | DirectoryMode  -> copyDir (link, linfo, lwarn) (f, t, o, e)
     | PatternMode -> copyPattern (link, linfo, lwarn) (f, t, o, e)
   | Yank (s, t)   ->  
     match t with
     | FileMode    -> fail "invalid mode for delete"
-    | FolderMode  -> yankFolder s
+    | DirectoryMode  -> yankDir s
     | PatternMode -> yankPattern s
 
   let runJob (job:Job) = Seq.iter runItem job.Items
