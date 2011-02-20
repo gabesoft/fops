@@ -11,6 +11,9 @@ let main (args) =
   let server = new IOServer()
   let engine = new Engine(server, log)
 
-  let jobs = validator.CreateJobs(opts)
-  engine.Run(jobs)
+  try
+    let jobs = validator.CreateJobs(opts)
+    engine.Run(jobs)
+  with e -> 
+    (log :> Log).Fail (e.ToString())
   0
