@@ -139,7 +139,7 @@ type Options (args, ?log:Log, ?app) =
     writeln @"                and all its sub directories any level deep)"
     writeln @"  - C:\a\*     (matches all files in 'a' directory)"
     writeln @"  - C:\a\b*\*  (matches all files in all sub directories of"
-    writeln @"                'a' that start with letter 'b'"
+    writeln @"                'a' that start with letter 'b')"
     writeln @"  - C:\?*\f.txt"
     writeln @"  - C:\a\*\b\*.txt"
     writeln @"  - C:\a\?*\b\c*.pd?"
