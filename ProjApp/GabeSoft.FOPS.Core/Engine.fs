@@ -50,17 +50,10 @@ type Engine(server: IOServer, ?log:Log) =
     match exists src with
     | false   -> ydwarn src "SKIPPED: folder does not exist"
     | true    ->
-        try 
-          yankd src 
-          match exists src with
-          | true  -> ydwarn src "DONE: some files could not be deleted"
-          | false -> ydinfo src
-        with 
-          | :? ArgumentException as e   -> ydfail src e.Message
-          | :? System.Reflection.TargetInvocationException as e -> 
-            match e.InnerException with
-            | null    -> raise e
-            | inner   -> ydfail src inner.Message
+        yankd src 
+        match exists src with
+        | true  -> ydwarn src "DONE: some files could not be deleted"
+        | false -> ydinfo src
 
   let copyFile (copy, info, warn) (src, dst, force) =
     let exists = server.Provider.FileExists
@@ -71,13 +64,10 @@ type Engine(server: IOServer, ?log:Log) =
         match exists dst, force with
         | true, false   ->  warn src dst "SKIPPED: destination file already exists"
         | e, _          ->  dst |> Path.directory |> mkdir
-                            try 
-                              copy src dst
-                              match e with
-                              | false  -> info src dst
-                              | true   -> warn src dst "DONE: replaced"
-                            with 
-                              | :? ArgumentException as e -> cfail src dst e.Message
+                            copy src dst
+                            match e with
+                            | false  -> info src dst
+                            | true   -> warn src dst "DONE: replaced"
   
   let rec copyDeep (copy, info, warn) (fdst, force) (node:IONode) =
     let src = node.Path
@@ -115,28 +105,46 @@ type Engine(server: IOServer, ?log:Log) =
     let fdst path = Path.combine dst (Path.file path)
     node.AllFiles |> Seq.iter (copyDeep (copy, info, warn) (fdst, force))
 
+  let runSafe fail run =
+    try 
+      run ()
+    with
+      | :? ArgumentException as e -> fail e.Message
+      | :? System.Reflection.TargetInvocationException as e -> 
+        match e.InnerException with
+        | null    -> raise e
+        | inner   -> fail inner.Message
+
   let runItem = function
   | Copy (s, d, o, e, c)  -> 
-    match c with
-    | FileMode    -> copyFile (copy, cinfo, cwarn) (s, d, o)
-    | DirectoryMode  -> copyDir (copy, cinfo, cwarn) (s, d, o, e)
-    | PatternMode -> copyPattern (copy, cinfo, cwarn) (s, d, o, e)
+    runSafe (cfail s d)
+            (fun () ->
+              match c with
+              | FileMode    -> copyFile (copy, cinfo, cwarn) (s, d, o)
+              | DirectoryMode  -> copyDir (copy, cinfo, cwarn) (s, d, o, e)
+              | PatternMode -> copyPattern (copy, cinfo, cwarn) (s, d, o, e))
   | Link (s, d, o, e, c)  ->
     let srcRoot = Path.root s
     let dstRoot = Path.root d
     let equal a b = String.Equals(a, b, StringComparison.OrdinalIgnoreCase)
     match equal srcRoot dstRoot with
     | false -> lfail s d "the source and destination paths must be on the same volume"
-    | true  ->
-        match c with
-        | FileMode    -> copyFile (link, linfo, lwarn) (s, d, o)
-        | DirectoryMode  -> copyDir (link, linfo, lwarn) (s, d, o, e)
-        | PatternMode -> copyPattern (link, linfo, lwarn) (s, d, o, e)
+    | true  -> 
+      runSafe (lfail s d)
+              (fun () ->
+                match c with
+                | FileMode    -> copyFile (link, linfo, lwarn) (s, d, o)
+                | DirectoryMode  -> copyDir (link, linfo, lwarn) (s, d, o, e)
+                | PatternMode -> copyPattern (link, linfo, lwarn) (s, d, o, e))
   | Yank (s, t)   ->  
-    match t with
-    | FileMode    -> yfail s "invalid mode for delete"
-    | DirectoryMode  -> yankDir s
-    | PatternMode -> yankPattern s
+    runSafe (match t with
+            | DirectoryMode -> ydfail s
+            | _             -> yfail s)
+            (fun () ->
+              match t with
+              | FileMode    -> yfail s "invalid mode for delete"
+              | DirectoryMode  -> yankDir s
+              | PatternMode -> yankPattern s)
 
   let runJob (job:Job) = Seq.iter runItem job.Items
   
