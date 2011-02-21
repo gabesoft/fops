@@ -13,9 +13,7 @@ type Engine(server: IOServer, ?log:Log) =
     let logger = match log with 
                   | Some l -> l 
                   | None -> new LogImpl () :> Log
-    logger.Info, 
-    logger.Warn, 
-    fun message -> logger.Fail (sprintf "ERROR: %s" message)
+    logger.Info, logger.Warn, logger.Fail
   let copy src dst = server.Provider.Copy (src, dst)
   let link src dst = server.Provider.Link (src, dst)
   let yank src = server.Provider.DeleteFile src
@@ -25,8 +23,10 @@ type Engine(server: IOServer, ?log:Log) =
   let cwarn src dst reason = sprintf "COPY: %s -> %s (%s)" src dst reason |> warn
   let linfo src dst = sprintf "LINK: %s -> %s (DONE)" src dst |> info
   let lwarn src dst reason = sprintf "LINK: %s -> %s (%s)" src dst reason |> warn
+  let lfail src dst reason = sprintf "LINK: %s -> %s (ERROR: %s)" src dst reason |> fail
   let yinfo src = sprintf "DELETE: %s (DONE)" src |> info
   let ywarn src reason = sprintf "DELETE: %s (%s)" src reason |> warn
+  let yfail src reason = sprintf "DELETE: %s (ERROR: %s)" src reason |> fail
   let ydinfo src = sprintf "DELETE-DIR: %s (DONE)" src |> info
   let ydwarn src reason = sprintf "DELETE-DIR: %s (%s)" src reason |> warn
 
@@ -113,7 +113,7 @@ type Engine(server: IOServer, ?log:Log) =
     let dstRoot = Path.root d
     let equal a b = String.Equals(a, b, StringComparison.OrdinalIgnoreCase)
     match equal srcRoot dstRoot with
-    | false -> fail "source and destination paths must have the same root"
+    | false -> lfail s d "source and destination paths must have the same root"
     | true  ->
         match c with
         | FileMode    -> copyFile (link, linfo, lwarn) (s, d, o)
@@ -121,7 +121,7 @@ type Engine(server: IOServer, ?log:Log) =
         | PatternMode -> copyPattern (link, linfo, lwarn) (s, d, o, e)
   | Yank (s, t)   ->  
     match t with
-    | FileMode    -> fail "invalid mode for delete"
+    | FileMode    -> yfail s "invalid mode for delete"
     | DirectoryMode  -> yankDir s
     | PatternMode -> yankPattern s
 
