@@ -22,6 +22,7 @@ type Options (args, ?log:Log, ?app) =
   let mutable _movef = false
   let mutable _moved = false
   let mutable _force = false
+  let mutable _verbose = false
   let mutable _src = String.Empty
   let mutable _dst = String.Empty
   let mutable _baseSrc = String.Empty
@@ -60,10 +61,12 @@ type Options (args, ?log:Log, ?app) =
         "Rename or move a directory."
     add "F|force"       (fun (v:string) -> _force <- true)
         "Overwrite any existing files at destination"
-    add "src="          (fun v -> _src <- v)
+    add "v|verbose"     (fun (v:string) -> _verbose <- true)
+        "Displays detailed information"
+    add "p|src="        (fun v -> _src <- v)
         "Source path (filesystem path or wildcard pattern)."
-    add "dst="          (fun v -> _dst <- v)
-        "Destination path (filesystem path or wildcard pattern)."
+    add "P|dst="        (fun v -> _dst <- v)
+        "Destination path (filesystem path)."
     add "b|basesrc="    (fun v -> _baseSrc <- v)
         "Base source directory path."
     add "B|basedst="    (fun v -> _baseDst <- v)
@@ -90,6 +93,7 @@ type Options (args, ?log:Log, ?app) =
   member x.MoveFile with get() = _movef
   member x.MoveDir with get() = _moved
   member x.Force with get() = _force
+  member x.Verbose with get() = _verbose
   member x.Src with get() = _src
   member x.Dst with get() = _dst
   member x.BaseSrc with get() = _baseSrc
@@ -99,16 +103,19 @@ type Options (args, ?log:Log, ?app) =
     cmd "--file=<path> [-basesrc=<path>] [-basedst=<path>] [-jobid=<id>]"
     cmd "--delete      --src=<pattern>"
     cmd "--deletedir   --src=<path>"
-    cmd "--copy        --src=<pattern>  --dst=<path> [-force]"
-    cmd "--copyfile    --src=<path>     --dst=<path> [-force]"
-    cmd "--copydir     --src=<path>     --dst=<path> [-force]"
-    cmd "--link        --src=<pattern>  --dst=<path> [-force]"
-    cmd "--linkfile    --src=<path>     --dst=<path> [-force]"
-    cmd "--linkdir     --src=<path>     --dst=<path> [-force]"
+    cmd "--copy        --src=<pattern>  --dst=<path> [options]"
+    cmd "--copyfile    --src=<path>     --dst=<path> [options]"
+    cmd "--copydir     --src=<path>     --dst=<path> [options]"
+    cmd "--link        --src=<pattern>  --dst=<path> [options]"
+    cmd "--linkfile    --src=<path>     --dst=<path> [options]"
+    cmd "--linkdir     --src=<path>     --dst=<path> [options]"
     writeln String.Empty
     writeOpts ()
     writeln ""
     writeln "NOTES"
+    writeln "- options:"
+    writeln "  -F, --force"
+    writeln "  -v, --verbose"
     writeln "- copydir and movedir work as follows:"
     writeln "  if the destination path is an existing directory"
     writeln "  the source directory gets copied/moved inside the"
@@ -120,12 +127,12 @@ type Options (args, ?log:Log, ?app) =
     writeln "- pattern: "
     writeln "  a wildcard pattern which can be absolute"
     writeln "  or relative to the basesrc."
-    writeln "  The wildcard pattern may contain a '*' that "
-    writeln "  matches zero or more characters or a '?' that matches"
-    writeln "  a single character."
-    writeln @"  Directory match works as follows:"
-    writeln @"  - /*/ matches any directory any level deep"
-    writeln @"  - /?*/ matches any directory exactly one level deep"
+    writeln "  The following wildcard characters are supported"
+    writeln "   * : matches zero or more characters"
+    writeln "   ? : matches exactly one character"
+    writeln @"  Directory match works as follows"
+    writeln @"   /*/  : matches any directory any level deep"
+    writeln @"   /?*/ : matches any directory exactly one level deep"
     writeln @"  Pattern examples:"
     writeln @"  - C:\*       (matches all files in the root directory)"
     writeln @"  - C:\*\*     (matches all files in the root directory "

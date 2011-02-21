@@ -2,6 +2,7 @@
 
 open System
 open System.IO
+open System.Text
 
 type Log =
   abstract member Info : string -> unit
@@ -30,3 +31,19 @@ type LogImpl (?color) =
     member x.InfoWriter = Console.Out
     member x.WarnWriter = Console.Out
     member x.FailWriter = Console.Out
+
+type SilentWriter () =
+  inherit TextWriter()
+  override x.Encoding with get () = Encoding.UTF8
+
+/// Log that only displays errors.
+type ErrorLog(log:Log) =
+  let writer = new SilentWriter()
+  interface Log with
+    member x.Info message = ()
+    member x.Warn message = ()
+    member x.Fail message = log.Fail message
+    member x.InfoWriter = writer :> TextWriter
+    member x.WarnWriter = writer :> TextWriter
+    member x.FailWriter = log.FailWriter
+  
