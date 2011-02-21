@@ -29,6 +29,7 @@ type Engine(server: IOServer, ?log:Log) =
   let yfail src reason = sprintf "DELETE: %s (ERROR: %s)" src reason |> fail
   let ydinfo src = sprintf "DELETE-DIR: %s (DONE)" src |> info
   let ydwarn src reason = sprintf "DELETE-DIR: %s (%s)" src reason |> warn
+  let ydfail src reason = sprintf "DELETE-DIR: %s (ERROR: %s)" src reason |> fail
 
   let getNode path spec = path |> server.Node |> Filter.apply spec
 
@@ -47,10 +48,17 @@ type Engine(server: IOServer, ?log:Log) =
     match exists src with
     | false   -> ydwarn src "SKIPPED: folder does not exist"
     | true    ->
-        yankd src
-        match exists src with
-        | true  -> ydwarn src "DONE: some files could not be deleted"
-        | false -> ydinfo src
+        try 
+          yankd src 
+          match exists src with
+          | true  -> ydwarn src "DONE: some files could not be deleted"
+          | false -> ydinfo src
+        with 
+          | :? ArgumentException as e   -> ydfail src e.Message
+          | :? System.Reflection.TargetInvocationException as e -> 
+            match e.InnerException with
+            | null    -> raise e
+            | inner   -> ydfail src inner.Message
 
   let copyFile (copy, info, warn) (src, dst, force) =
     let exists = server.Provider.FileExists
@@ -113,7 +121,7 @@ type Engine(server: IOServer, ?log:Log) =
     let dstRoot = Path.root d
     let equal a b = String.Equals(a, b, StringComparison.OrdinalIgnoreCase)
     match equal srcRoot dstRoot with
-    | false -> lfail s d "source and destination paths must have the same root"
+    | false -> lfail s d "the source and destination paths must be on the same volume"
     | true  ->
         match c with
         | FileMode    -> copyFile (link, linfo, lwarn) (s, d, o)
