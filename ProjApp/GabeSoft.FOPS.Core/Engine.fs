@@ -21,6 +21,7 @@ type Engine(server: IOServer, ?log:Log) =
 
   let cinfo src dst = sprintf "COPY: %s -> %s (DONE)" src dst |> info
   let cwarn src dst reason = sprintf "COPY: %s -> %s (%s)" src dst reason |> warn
+  let cfail src dst reason = sprintf "COPY: %s -> %s (ERROR: %s)" src dst reason |> fail
   let linfo src dst = sprintf "LINK: %s -> %s (DONE)" src dst |> info
   let lwarn src dst reason = sprintf "LINK: %s -> %s (%s)" src dst reason |> warn
   let lfail src dst reason = sprintf "LINK: %s -> %s (ERROR: %s)" src dst reason |> fail
@@ -39,6 +40,7 @@ type Engine(server: IOServer, ?log:Log) =
       Exclude = []
       Recursive = Wildcard.isRecursive src }
     let node = getNode (Wildcard.root src) spec
+    let exists = server.Provider.DirectoryExists
     node.AllFiles |> Seq.iter (fun f -> 
                                   yank f.Path
                                   yinfo f.Path)
@@ -69,10 +71,13 @@ type Engine(server: IOServer, ?log:Log) =
         match exists dst, force with
         | true, false   ->  warn src dst "SKIPPED: destination file already exists"
         | e, _          ->  dst |> Path.directory |> mkdir
-                            copy src dst
-                            match e with
-                            | false  -> info src dst
-                            | true   -> warn src dst "DONE: replaced"
+                            try 
+                              copy src dst
+                              match e with
+                              | false  -> info src dst
+                              | true   -> warn src dst "DONE: replaced"
+                            with 
+                              | :? ArgumentException as e -> cfail src dst e.Message
   
   let rec copyDeep (copy, info, warn) (fdst, force) (node:IONode) =
     let src = node.Path
