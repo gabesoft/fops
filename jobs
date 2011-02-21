@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<jobs>
+	<job id="j1">
+		<copy src="*/bin/*/*.dll" dst="C:\Temp\fops-test" force="true">
+			<exclude src="*/*DSBK*" />
+		</copy>
+		<copy src="*/bin/*/*.pdb" dst="C:\Temp\fops-test" force="true" />
+	</job>
+</jobs>
+

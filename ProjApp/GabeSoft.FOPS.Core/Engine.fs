@@ -13,20 +13,22 @@ type Engine(server: IOServer, ?log:Log) =
     let logger = match log with 
                   | Some l -> l 
                   | None -> new LogImpl () :> Log
-    logger.Info, logger.Warn, logger.Fail
+    logger.Info, 
+    logger.Warn, 
+    fun message -> logger.Fail (sprintf "ERROR: %s" message)
   let copy src dst = server.Provider.Copy (src, dst)
   let link src dst = server.Provider.Link (src, dst)
   let yank src = server.Provider.DeleteFile src
   let yankd src = server.Provider.DeleteDirectory (src, true)
 
-  let cinfo src dst = sprintf "copy: %s -> %s (DONE)" src dst |> info
-  let cwarn src dst reason = sprintf "copy: %s -> %s (%s)" src dst reason |> warn
-  let linfo src dst = sprintf "link: %s -> %s (DONE)" src dst |> info
-  let lwarn src dst reason = sprintf "link: %s -> %s (%s)" src dst reason |> warn
-  let yinfo src = sprintf "delete: %s (DONE)" src |> info
-  let ywarn src reason = sprintf "delete: %s (%s)" src reason |> warn
-  let ydinfo src = sprintf "delete-dir: %s (DONE)" src |> info
-  let ydwarn src reason = sprintf "delete-dir: %s (%s)" src reason |> warn
+  let cinfo src dst = sprintf "COPY: %s -> %s (DONE)" src dst |> info
+  let cwarn src dst reason = sprintf "COPY: %s -> %s (%s)" src dst reason |> warn
+  let linfo src dst = sprintf "LINK: %s -> %s (DONE)" src dst |> info
+  let lwarn src dst reason = sprintf "LINK: %s -> %s (%s)" src dst reason |> warn
+  let yinfo src = sprintf "DELETE: %s (DONE)" src |> info
+  let ywarn src reason = sprintf "DELETE: %s (%s)" src reason |> warn
+  let ydinfo src = sprintf "DELETE-DIR: %s (DONE)" src |> info
+  let ydwarn src reason = sprintf "DELETE-DIR: %s (%s)" src reason |> warn
 
   let getNode path spec = path |> server.Node |> Filter.apply spec
 
@@ -101,16 +103,22 @@ type Engine(server: IOServer, ?log:Log) =
     node.AllFiles |> Seq.iter (copyDeep (copy, info, warn) (fdst, force))
 
   let runItem = function
-  | Copy (f, t, o, e, c)  -> 
+  | Copy (s, d, o, e, c)  -> 
     match c with
-    | FileMode    -> copyFile (copy, cinfo, cwarn) (f, t, o)
-    | DirectoryMode  -> copyDir (copy, cinfo, cwarn) (f, t, o, e)
-    | PatternMode -> copyPattern (copy, cinfo, cwarn) (f, t, o, e)
-  | Link (f, t, o, e, c)  ->
-    match c with
-    | FileMode    -> copyFile (link, linfo, lwarn) (f, t, o)
-    | DirectoryMode  -> copyDir (link, linfo, lwarn) (f, t, o, e)
-    | PatternMode -> copyPattern (link, linfo, lwarn) (f, t, o, e)
+    | FileMode    -> copyFile (copy, cinfo, cwarn) (s, d, o)
+    | DirectoryMode  -> copyDir (copy, cinfo, cwarn) (s, d, o, e)
+    | PatternMode -> copyPattern (copy, cinfo, cwarn) (s, d, o, e)
+  | Link (s, d, o, e, c)  ->
+    let srcRoot = Path.root s
+    let dstRoot = Path.root d
+    let equal a b = String.Equals(a, b, StringComparison.OrdinalIgnoreCase)
+    match equal srcRoot dstRoot with
+    | false -> fail "source and destination paths must have the same root"
+    | true  ->
+        match c with
+        | FileMode    -> copyFile (link, linfo, lwarn) (s, d, o)
+        | DirectoryMode  -> copyDir (link, linfo, lwarn) (s, d, o, e)
+        | PatternMode -> copyPattern (link, linfo, lwarn) (s, d, o, e)
   | Yank (s, t)   ->  
     match t with
     | FileMode    -> fail "invalid mode for delete"
