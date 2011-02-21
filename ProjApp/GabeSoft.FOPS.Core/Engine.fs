@@ -63,11 +63,13 @@ type Engine(server: IOServer, ?log:Log) =
     | true  ->
         match exists dst, force with
         | true, false   ->  warn src dst "SKIPPED: destination file already exists"
-        | e, _          ->  dst |> Path.directory |> mkdir
+        | true, true    ->  dst |> Path.directory |> mkdir
+                            yank dst
                             copy src dst
-                            match e with
-                            | false  -> info src dst
-                            | true   -> warn src dst "DONE: replaced"
+                            warn src dst "DONE: replaced"
+        | false, _      ->  dst |> Path.directory |> mkdir
+                            copy src dst
+                            info src dst
   
   let rec copyDeep (copy, info, warn) (fdst, force) (node:IONode) =
     let src = node.Path
