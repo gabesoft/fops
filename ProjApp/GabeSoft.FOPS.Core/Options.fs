@@ -1,6 +1,7 @@
 ﻿namespace GabeSoft.FOPS.Core
 
 open System
+open System.Collections.Generic
 open Microsoft.FSharp.Text
 open GabeSoft.FOPS.Cmd
 
@@ -30,49 +31,47 @@ type Options (args, ?log:Log, ?app) =
   let mutable _jobId = String.Empty
   
   let set = new OptionSet()
-  let add arg (action:'a -> unit) desc = 
+  let add arg (action:string -> unit) desc = 
     set.Add(arg, desc, new Action<_>(action)) |> ignore
+  let add2 arg (action:string -> string -> unit) desc =
+    set.Add(arg, desc, new OptionAction<_, _>(action)) |> ignore
 
   do 
-    add "?|help"        (fun (v:string) -> _help <- true)
-        "Show usage." 
-    add "f|file="       (fun v -> _file <- v)
-        "Path to the file containing the jobs to run." 
-    add "d|delete"      (fun (v:string) -> _yank <- true)
-        @"Delete all files that match a wildcard
+    add   "?|help"        (fun v -> _help <- true)
+          "Show usage." 
+    add   "f|file="       (fun v -> _file <- v)
+          "Path to the file containing the jobs to run." 
+    add   "d|delete="     (fun v -> _yank <- true; _src <- v)
+          @"Delete all files that match a wildcard
           pattern (including read-only!)." 
-    add "D|deletedir"   (fun (v:string) -> _yankd <- true)
-        "Delete an entire directory recursively!"
-    add "c|copy"        (fun (v:string) -> _copy <- true)
-        "Copy files according to a wildcard pattern." 
-    add "l|link"        (fun (v:string) -> _link <- true)
-        "Link files according to a wildcard pattern." 
-    add "copyfile"      (fun (v:string) -> _copyf <- true)
-        "Copy a single file."
-    add "linkfile"      (fun (v:string) -> _linkf <- true)
-        "Link a single file."
-    add "m|movefile"    (fun (v:string) -> _movef <- true)
-        "Rename a file."
-    add "C|copydir"     (fun (v:string) -> _copyd <- true)
-        "Copy a directory recursively."
-    add "L|linkdir"     (fun (v:string) -> _linkd <- true)
-        "Link a directory recursively."
-    add "M|movedir"     (fun (v:string) -> _moved <- true)
-        "Rename or move a directory."
-    add "F|force"       (fun (v:string) -> _force <- true)
-        "Overwrite any existing files at destination"
-    add "v|verbose"     (fun (v:string) -> _verbose <- true)
-        "Displays detailed information"
-    add "p|src="        (fun v -> _src <- v)
-        "Source path (filesystem path or wildcard pattern)."
-    add "P|dst="        (fun v -> _dst <- v)
-        "Destination path (filesystem path)."
-    add "b|basesrc="    (fun v -> _baseSrc <- v)
-        "Base source directory path."
-    add "B|basedst="    (fun v -> _baseDst <- v)
-        "Base destination directory path."
-    add "j|jobid="      (fun v -> _jobId <- v)
-        "The id of a job to run. Omit to run all jobs."
+    add   "D|deleted="    (fun v -> _yankd <- true; _src <- v)
+          "Delete an entire directory recursively!"
+    add2  "c|copy={}"     (fun src dst -> _copy <- true; _src <- src; _dst <- dst)
+          "Copy files according to a wildcard pattern." 
+    add2  "l|link={}"     (fun src dst -> _link <- true; _src <- src; _dst <- dst)
+          "Link files according to a wildcard pattern." 
+    add2  "copyf={}"      (fun src dst ->  _copyf <- true; _src <- src; _dst <- dst)
+          "Copy a single file."
+    add2  "linkf={}"      (fun src dst -> _linkf <- true; _src <- src; _dst <- dst)
+          "Link a single file."
+    add2  "m|movef={}"    (fun src dst -> _movef <- true; _src <- src; _dst <- dst)
+          "Rename a file."
+    add2  "C|copyd={}"    (fun src dst ->  _copyd <- true; _src <- src; _dst <- dst)
+          "Copy a directory recursively."
+    add2  "L|linkd={}"    (fun src dst -> _linkd <- true; _src <- src; _dst <- dst)
+          "Link a directory recursively."
+    add2  "M|moved={}"    (fun src dst -> _moved <- true; _src <- src; _dst <- dst)
+          "Rename or move a directory."
+    add   "F|force"       (fun v -> _force <- true)
+          "Overwrite any existing files at destination"
+    add   "v|verbose"     (fun v -> _verbose <- true)
+          "Displays detailed information"
+    add   "b|basesrc="    (fun v -> _baseSrc <- v)
+          "Base source directory path."
+    add   "B|basedst="    (fun v -> _baseDst <- v)
+          "Base destination directory path."
+    add   "j|jobid="      (fun v -> _jobId <- v)
+          "The id of a job to run. Omit to run all jobs."
 
     set.Parse(args) |> ignore
 
@@ -101,14 +100,16 @@ type Options (args, ?log:Log, ?app) =
   member x.JobId with get() = _jobId
   member x.WriteUsage () = 
     cmd "--file=<path> [-basesrc=<path>] [-basedst=<path>] [-jobid=<id>]"
-    cmd "--delete      --src=<pattern>"
-    cmd "--deletedir   --src=<path>"
-    cmd "--copy        --src=<pattern>  --dst=<path> [options]"
-    cmd "--copyfile    --src=<path>     --dst=<path> [options]"
-    cmd "--copydir     --src=<path>     --dst=<path> [options]"
-    cmd "--link        --src=<pattern>  --dst=<path> [options]"
-    cmd "--linkfile    --src=<path>     --dst=<path> [options]"
-    cmd "--linkdir     --src=<path>     --dst=<path> [options]"
+    cmd "--copy       <src_pattern>  <dst_path> [options]"
+    cmd "--link       <src_pattern>  <dst_path> [options]"
+    cmd "--delete     <src_pattern>"
+    cmd "--copyf      <src_path>     <dst_path> [options]"
+    cmd "--linkf      <src_path>     <dst_path> [options]"
+    cmd "--movef      <src_path>     <dst_path> [options]"
+    cmd "--copyd      <src_path>     <dst_path> [options]"
+    cmd "--linkd      <src_path>     <dst_path> [options]"
+    cmd "--moved      <src_path>     <dst_path> [options]"
+    cmd "--deleted    <src_path>"
     writeln String.Empty
     writeOpts ()
     writeln ""

@@ -11,9 +11,6 @@ open GabeSoft.FOPS.Core
 open GabeSoft.FOPS.Test
 
 let opts args = new Options(args)
-let srcArg src = sprintf "--src=%s" src
-let dstArg dst = sprintf "--dst=%s" dst
-
 let validating opts =
   printMethod "\n"
   let log = new LogImpl()
@@ -80,7 +77,7 @@ let ``File - overrides base-src and base-dst`` () =
 [<Scenario>]
 let ``Delete - has expected type and source`` () =
   let src = @"C:\a\b\*\c.txt"
-  Given (opts ["-d"; srcArg src])
+  Given (opts ["-d"; src])
   |> When validating
   |> It should have (expected_type [check_yank src PatternMode])
   |> Verify
@@ -88,7 +85,7 @@ let ``Delete - has expected type and source`` () =
 [<Scenario>]
 let ``Delete dir - has expected type and source`` () =
   let src = @"C:\a\b"
-  Given (opts ["-D"; srcArg src])
+  Given (opts ["-D"; src])
   |> When validating
   |> It should have (expected_type [check_yank src DirectoryMode])
   |> Verify
@@ -100,7 +97,7 @@ let ``Copy - has expected type and paths`` (arg) =
   let fn = check_funs.[arg]
   let src = @"C:\a\?*\b\f?.p*"
   let dst = @"F:\Temp"
-  Given (opts [arg; srcArg src; dstArg dst; "-F"])
+  Given (opts [arg; src; dst; "-F"])
   |> When validating
   |> It should have (expected_type [fn src dst true PatternMode])
   |> Verify
@@ -112,7 +109,7 @@ let  ``Copy file - has expected type and paths`` (arg) =
   let fn = check_funs.[arg]
   let src = @"C:\a\b\f1.doc"
   let dst = @"C:\a\c\f2.txt"
-  Given (opts [arg; srcArg src; dstArg dst])
+  Given (opts [arg; src; dst])
   |> When validating
   |> It should have (expected_type [fn src dst false FileMode])
   |> Verify
@@ -124,7 +121,7 @@ let ``Copy dir - has expected type and paths`` (arg) =
   let fn = check_funs.[arg]
   let src = @"C:\a\b\"
   let dst = @"C:\a\c\"
-  Given (opts [arg; srcArg src; dstArg dst])
+  Given (opts [arg; src; dst])
   |> When validating
   |> It should have (expected_type [fn src dst false DirectoryMode])
   |> Verify
@@ -136,12 +133,8 @@ let ``Move file - has expected job items`` (arg) =
   let ymodes = Map.ofList ["-m", PatternMode; "-M", DirectoryMode]
   let src = @"C:\a\b\f1"
   let dst = @"C:\a\c\f2"
-  Given (opts [arg; srcArg src; dstArg dst; "-F"]) 
+  Given (opts [arg; src; dst; "-F"]) 
   |> When validating
   |> It should have (expected_type [ check_copy src dst true cmodes.[arg]
                                      check_yank src ymodes.[arg] ])
   |> Verify  
-
-// TODO: fix parsing to work with move
-//       when moving ensure that src is not 
-//       deleted if the copy did not succeed
