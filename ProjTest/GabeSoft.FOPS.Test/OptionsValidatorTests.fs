@@ -102,10 +102,10 @@ let ``Copy - has expected type and paths`` (arg) =
   |> It should have (expected_type [fn src dst true PatternMode])
   |> Verify
 
-[<ScenarioTemplate("--copyfile")>]
-[<ScenarioTemplate("--linkfile")>]
+[<ScenarioTemplate("--copyf")>]
+[<ScenarioTemplate("--linkf")>]
 let  ``Copy file - has expected type and paths`` (arg) =
-  let check_funs = Map.ofList ["--copyfile", check_copy; "--linkfile", check_link]
+  let check_funs = Map.ofList ["--copyf", check_copy; "--linkf", check_link]
   let fn = check_funs.[arg]
   let src = @"C:\a\b\f1.doc"
   let dst = @"C:\a\c\f2.txt"

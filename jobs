@@ -5,6 +5,7 @@
 			<exclude src="*/*DSBK*" />
 		</copy>
 		<copy src="*/bin/*/*.pdb" dst="C:\Temp\fops-test" force="true" />
+		<delete src="*/*/spec_*.txt" />
 	</job>
 </jobs>
 
