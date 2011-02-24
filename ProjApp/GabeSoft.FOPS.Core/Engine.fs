@@ -40,7 +40,6 @@ type Engine(server: IOServer, ?log:Log) =
       Exclude = []
       Recursive = Wildcard.isRecursive src }
     let node = getNode (Wildcard.root src) spec
-    let exists = server.Provider.DirectoryExists
     node.AllFiles |> Seq.iter (fun f -> 
                                   yank f.Path
                                   yinfo f.Path)
@@ -80,7 +79,7 @@ type Engine(server: IOServer, ?log:Log) =
       node.Files 
       |> Seq.append node.Directories
       |> Seq.iter (copyDeep (copy, info, warn) (fdst, force))
-    | _             -> fail "unknown node type"
+    | _             -> fail "unsupported node type"
 
   let copyDir (copy, info, warn) (src, dst, force, excludes) =
     let excludes = excludes |> List.map Wildcard.toRegex    

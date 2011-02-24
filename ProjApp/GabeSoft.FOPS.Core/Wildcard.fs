@@ -16,8 +16,8 @@ open System.Text.RegularExpressions
 module Wildcard =
   /// Escapes the regular expression characters
   /// in the specified input.
-  let escape input = Regex.Escape (input)
-  let normalize = Path.normalize    
+  let private escape input = Regex.Escape (input)
+  let private normalize = Path.normalize    
 
   /// <summary>
   /// Prepares the specified input for regex conversion.
@@ -32,7 +32,7 @@ module Wildcard =
   /// <para> - the input is not escaped  </para>
   /// </para>
   /// </summary>
-  let prepare input = 
+  let private prepare input = 
     let sep = Path.separator.ToString() |> escape
     let pat1, repl1 = escape "*.*", "*"
     let pat2, repl2 = sprintf "%s$" ("/*" |> normalize |> escape),
@@ -62,7 +62,7 @@ module Wildcard =
   /// <para> - the input has been prepared for conversion  </para>
   /// </para>
   /// </summary>
-  let convert (input: string) =
+  let private convert (input: string) =
     // the following replacements are performed in order
     // \>>>  -> \\[^\\]*
     // \>>   -> \\[^\\]+
