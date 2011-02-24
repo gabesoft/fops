@@ -86,12 +86,12 @@ NOTES
       <move-dir src="a\b" dst="a\b\c" />
     </job>
 
-	  <job id="my-other-job">
-		  <copy src="./*/bin/*/*.dll" dst="C:\Temp\fops-test" force="true">
-			  <exclude src="./*/*DSBK*" />
-		  </copy>
-		  <copy src="./*/bin/*/*.pdb" dst="C:\Temp\fops-test" force="true" />
-		  <delete src="./*/*/spec_*.txt" />
-	  </job>
+    <job id="my-other-job">
+      <copy src="./*/bin/*/*.dll" dst="C:\Temp\fops-test" force="true">
+        <exclude src="./*/*DSBK*" />
+      </copy>
+      <copy src="./*/bin/*/*.pdb" dst="C:\Temp\fops-test" force="true" />
+      <delete src="./*/*/spec_*.txt" />
+    </job>
 
   </jobs>
