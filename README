@@ -28,7 +28,7 @@ USAGE
   -L, --linkd=VALUE1 VALUE2  Link a directory recursively.
   -M, --moved=VALUE1 VALUE2  Rename or move a directory.
   -F, --force                Overwrite any existing files at destination
-  -v, --verbose              Displays detailed information
+  -v, --verbose              Display detailed information
   -b, --basesrc=VALUE        Base source directory path.
   -B, --basedst=VALUE        Base destination directory path.
   -j, --jobid=VALUE          The id of a job to run. Omit to run all jobs.

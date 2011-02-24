@@ -65,7 +65,7 @@ type Options (args, ?log:Log, ?app) =
     add   "F|force"       (fun v -> _force <- true)
           "Overwrite any existing files at destination"
     add   "v|verbose"     (fun v -> _verbose <- true)
-          "Displays detailed information"
+          "Display detailed information"
     add   "b|basesrc="    (fun v -> _baseSrc <- v)
           "Base source directory path."
     add   "B|basedst="    (fun v -> _baseDst <- v)
