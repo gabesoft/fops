@@ -37,7 +37,7 @@ NOTES
 - options:
   -F, --force
   -v, --verbose
-- copydir and movedir work as follows:
+- copy dir (copyd) and move dir (moved) work as follows:
   if the destination path is an existing directory
   the source directory gets copied/moved inside the
   destination directory, otherwise the source directory
