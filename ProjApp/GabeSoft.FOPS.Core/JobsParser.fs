@@ -31,6 +31,14 @@ module JobsParser =
   /// Returns all children elements of the given parent element.
   let private xall (parent: XContainer) = parent.Elements()
 
+  let private allowExcludes (elem: XElement) = ()
+  let private disallowExcludes (elem: XElement) =
+    match Seq.toList (xcn "exclude" elem) with
+    | []  -> ()
+    | _   -> 
+      let error = sprintf "element %s does not accept exclude children" (lname elem)
+      fail error
+
   let private getRequired (v: option<string>) errorIfMissing = 
     match v with
     | None   -> fail errorIfMissing
@@ -55,7 +63,8 @@ module JobsParser =
   let private parseExclude (elem: XElement) = 
     getAttr "src" elem true
 
-  let private parseCopy f (elem: XElement) =
+  let private parseCopy f checkExcludes (elem: XElement) =
+    checkExcludes elem
     let excludes = xcn "exclude" elem 
                     |> Seq.map parseExclude
                     |> Seq.toList
@@ -65,22 +74,23 @@ module JobsParser =
     f (src, dst, force |> toBool defaults.["force"], excludes)
 
   let private parseYank f (elem: XElement) =
+    disallowExcludes elem
     let src = getAttr "src" elem true
     f (getAttr "src" elem true)
 
   let private parseItem (elem: XElement) = 
     match lname elem with
-    | "copy"        -> [ parseCopy (Item.copy PatternMode) elem ]
-    | "copy-file"   -> [ parseCopy (Item.copy FileMode) elem ]
-    | "copy-dir"    -> [ parseCopy (Item.copy DirectoryMode) elem ]
-    | "link"        -> [ parseCopy (Item.link PatternMode) elem ]
-    | "link-file"   -> [ parseCopy (Item.link FileMode) elem ]
-    | "link-dir"    -> [ parseCopy (Item.link DirectoryMode) elem ]
+    | "copy"        -> [ parseCopy (Item.copy PatternMode) allowExcludes elem ]
+    | "copy-file"   -> [ parseCopy (Item.copy FileMode) disallowExcludes elem ]
+    | "copy-dir"    -> [ parseCopy (Item.copy DirectoryMode) allowExcludes elem ]
+    | "link"        -> [ parseCopy (Item.link PatternMode) allowExcludes elem ]
+    | "link-file"   -> [ parseCopy (Item.link FileMode) disallowExcludes elem ]
+    | "link-dir"    -> [ parseCopy (Item.link DirectoryMode) allowExcludes elem ]
     | "delete"      -> [ parseYank (Item.yank PatternMode) elem ]
     | "delete-dir"  -> [ parseYank (Item.yank DirectoryMode) elem ]
-    | "move-file"   -> [ parseCopy (Item.copy FileMode) elem
+    | "move-file"   -> [ parseCopy (Item.copy FileMode) disallowExcludes elem
                          parseYank (Item.yank FileMode) elem ]
-    | "move-dir"    -> [ parseCopy (Item.copy DirectoryMode) elem
+    | "move-dir"    -> [ parseCopy (Item.copy DirectoryMode) disallowExcludes elem
                          parseYank (Item.yank DirectoryMode) elem ]
     | n             -> fail (sprintf "unknown element %s" n)
 

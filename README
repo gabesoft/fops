@@ -1,0 +1,97 @@
+FOPS: File operations utility.
+USAGE:
+ fops --file=<path> [-basesrc=<path>] [-basedst=<path>] [-jobid=<id>]
+ fops --copy       <src_pattern>  <dst_path> [options]
+ fops --link       <src_pattern>  <dst_path> [options]
+ fops --delete     <src_pattern>
+ fops --copyf      <src_path>     <dst_path> [options]
+ fops --linkf      <src_path>     <dst_path> [options]
+ fops --movef      <src_path>     <dst_path> [options]
+ fops --copyd      <src_path>     <dst_path> [options]
+ fops --linkd      <src_path>     <dst_path> [options]
+ fops --moved      <src_path>     <dst_path> [options]
+ fops --deleted    <src_path>
+
+ -?, --help                 Show usage.
+ -f, --file=VALUE           Path to the file containing the jobs to run.
+ -d, --delete=VALUE         Delete all files that match a wildcard
+                                        pattern (including read-only!).
+ -D, --deleted=VALUE        Delete an entire directory recursively!
+ -c, --copy=VALUE1 VALUE2   Copy files according to a wildcard pattern.
+ -l, --link=VALUE1 VALUE2   Link files according to a wildcard pattern.
+     --copyf=VALUE1 VALUE2  Copy a single file.
+     --linkf=VALUE1 VALUE2  Link a single file.
+ -m, --movef=VALUE1 VALUE2  Rename a file.
+ -C, --copyd=VALUE1 VALUE2  Copy a directory recursively.
+ -L, --linkd=VALUE1 VALUE2  Link a directory recursively.
+ -M, --moved=VALUE1 VALUE2  Rename or move a directory.
+ -F, --force                Overwrite any existing files at destination
+ -v, --verbose              Displays detailed information
+ -b, --basesrc=VALUE        Base source directory path.
+ -B, --basedst=VALUE        Base destination directory path.
+ -j, --jobid=VALUE          The id of a job to run. Omit to run all jobs
+
+NOTES
+ options:
+ -F, --force
+ -v, --verbose
+ copydir and movedir work as follows:
+ if the destination path is an existing directory
+ the source directory gets copied/moved inside the
+ destination directory, otherwise the source directory
+ gets copied/moved as the destination directory
+ path:
+ a filesystem path which can be absolute
+ or relative to the basesrc or basedst
+ pattern:
+ a wildcard pattern which can be absolute
+ or relative to the basesrc.
+ The following wildcard characters are supported
+  * : matches zero or more characters
+  ? : matches exactly one character
+ Directory match works as follows
+  /*/  : matches any directory any level deep
+  /?*/ : matches any directory exactly one level deep
+ Pattern examples:
+ - C:\*       (matches all files in the root directory)
+ - C:\*\*     (matches all files in the root directory
+               and all its sub directories any level deep)
+ - C:\a\*     (matches all files in 'a' directory)
+ - C:\a\b*\*  (matches all files in all sub directories of
+               'a' that start with letter 'b')
+ - C:\?*\f.txt
+ - C:\a\*\b\*.txt
+ - C:\a\?*\b\c*.pd?
+ - C:\a\*\b\?*\c\f?*.txt
+
+ JOBS FILE SAMPLE:
+  <jobs>
+
+    <job id="my-job" base-src="C:\source" base-dst="C:\dest">
+      <delete src="a\b\c\*\d\*.tmp" />
+      <delete src="a\b\c\f1.pdb" />
+      <delete-dir src="a\b" />
+      <copy-file src="b\f2.pdf" dst="c\f3.pdf" />
+      <copy-dir src="b\e\" dst="\">
+        <exclude src="*\*.tmp" />
+        <exclude src="*\bin\*.pdb" />
+      </copy-dir>
+      <copy src="a\?*\b\*\*.t*" dst="e" force="true">
+        <exclude src="c\*" />
+        <exclude src="d\*" />
+        <exclude src="e\*" />
+      </copy>
+      <link src="\a\b\?*\*.*" dst="\e\f"/>
+      <move-file src="a\b\f1.doc" dst="a\c\f2.txt" />
+      <move-dir src="a\b" dst="a\b\c" />
+    </job>
+
+	  <job id="my-other-job">
+		  <copy src="./*/bin/*/*.dll" dst="C:\Temp\fops-test" force="true">
+			  <exclude src="./*/*DSBK*" />
+		  </copy>
+		  <copy src="./*/bin/*/*.pdb" dst="C:\Temp\fops-test" force="true" />
+		  <delete src="./*/*/spec_*.txt" />
+	  </job>
+
+  </jobs>
