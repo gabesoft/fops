@@ -44,6 +44,7 @@ let matches (expected: string list, actual: string list) =
 [<ScenarioTemplate(11)>]
 [<ScenarioTemplate(12)>]
 [<ScenarioTemplate(13)>]
+[<ScenarioTemplate(14)>]
 let ``Applying a filter should accept only valid paths`` (index) =
     Given FilterTestsData.patterns1.[index]
     |> When accepting
@@ -103,6 +104,7 @@ let ``Applying a filter should keep only valid paths`` () =
 [<ScenarioTemplate(11)>]
 [<ScenarioTemplate(12)>]
 [<ScenarioTemplate(13)>]
+[<ScenarioTemplate(14)>]
 let ``Non recursive filters should leave no folders on parents`` (index) =
     Given FilterTestsData.patterns1.[index]
     |> When applying_file_filter

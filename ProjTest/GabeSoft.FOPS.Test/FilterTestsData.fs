@@ -105,7 +105,10 @@ let patterns1 = [
     @"C:\da2\b\test.doc", true
     @"C:\b\test.doc", false
     @"C:\a\b\t.doc", false
-    @"C:\a\b1\test.doc", false ]]
+    @"C:\a\b1\test.doc", false ]
+  @"C:\fops_svc*", [
+    @"C:\fops_svc", true
+    @"C:\fops_svc_u", true ]]
 
 let patterns2 = [
    // pattern
